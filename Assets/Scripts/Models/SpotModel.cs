@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[DefaultExecutionOrder((int)ExecutionOrder.SpotModel)]
 public class SpotModel : MonoBehaviour
 {
     [NotNull] public GameConfiguration GameConfiguration;

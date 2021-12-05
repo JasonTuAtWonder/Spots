@@ -1,11 +1,16 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+[DefaultExecutionOrder((int)ExecutionOrder.BoardModel)]
 public class BoardModel : MonoBehaviour
 {
     public GameConfiguration GameConfiguration;
 
-    List<List<SpotModel>> spots;
+    public List<List<SpotModel>> Spots
+    {
+        get;
+        private set;
+    }
 
     void Awake()
     {
@@ -17,7 +22,7 @@ public class BoardModel : MonoBehaviour
     /// </summary>
     void InitializeBoard()
     {
-        spots = new List<List<SpotModel>>();
+        Spots = new List<List<SpotModel>>();
 
         for (var i = 0; i < GameConfiguration.Width; i++)
         {
@@ -29,7 +34,7 @@ public class BoardModel : MonoBehaviour
                 row.Add(spot);
             }
 
-            spots.Add(row);
+            Spots.Add(row);
         }
     }
 }

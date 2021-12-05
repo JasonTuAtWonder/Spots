@@ -1,10 +1,10 @@
 using UnityEngine;
 
-[RequireComponent(typeof(SpotModel))]
+[DefaultExecutionOrder((int)ExecutionOrder.SpotPresenter)]
 public class SpotPresenter : MonoBehaviour
 {
     [Header("Models")]
-    SpotModel spotModel;
+    [NotNull] public SpotModel SpotModel;
 
     [Header("Views")]
     [NotNull] public MeshRenderer SpotView;
@@ -13,9 +13,7 @@ public class SpotPresenter : MonoBehaviour
 
     void Awake()
     {
-        spotModel = GetComponent<SpotModel>();
         spotMaterial = SpotView.material;
-
         Render();
     }
 
@@ -24,6 +22,6 @@ public class SpotPresenter : MonoBehaviour
     /// </summary>
     void Render()
     {
-        spotMaterial.color = spotModel.Color;
+        spotMaterial.color = SpotModel.Color;
     }
 }

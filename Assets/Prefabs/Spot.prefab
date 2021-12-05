@@ -122,4 +122,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b5acb5dcb1c342be9e28956b71d2a90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SpotModel: {fileID: 7394175089341421659}
   SpotView: {fileID: 7394175089341421662}
