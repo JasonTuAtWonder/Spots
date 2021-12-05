@@ -17,6 +17,8 @@ public class BoardModel : MonoBehaviour
     /// </summary>
     void InitializeBoard()
     {
+        spots = new List<List<SpotModel>>();
+
         for (var i = 0; i < GameConfiguration.Width; i++)
         {
             var row = new List<SpotModel>();
