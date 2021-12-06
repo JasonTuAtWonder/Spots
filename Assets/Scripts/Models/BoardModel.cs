@@ -4,37 +4,38 @@ using System.Collections.Generic;
 [DefaultExecutionOrder((int)ExecutionOrder.BoardModel)]
 public class BoardModel : MonoBehaviour
 {
-    public GameConfiguration GameConfiguration;
-
+    // +x points to the right
+    // +y points up
     public List<List<SpotModel>> Spots
     {
         get;
         private set;
     }
 
-    void Awake()
+    public List<SpotModel> ConnectedSpots
     {
-        InitializeBoard();
+        get;
+        private set;
     }
 
-    /// <summary>
-    /// Instantiate spot prefabs for the board.
-    /// </summary>
-    void InitializeBoard()
+    public Vector2? CurrentMousePosition
+    {
+        get;
+        set;
+    }
+
+    void Awake()
     {
         Spots = new List<List<SpotModel>>();
+        ConnectedSpots = new List<SpotModel>();
+    }
 
-        for (var i = 0; i < GameConfiguration.Width; i++)
+    void Update()
+    {
+        Debug.Log("connected spots: " + ConnectedSpots.Count);
+        foreach (var spot in ConnectedSpots)
         {
-            var row = new List<SpotModel>();
-
-            for (var j = 0; j < GameConfiguration.Height; j++)
-            {
-                var spot = Instantiate(GameConfiguration.SpotPrefab);
-                row.Add(spot);
-            }
-
-            Spots.Add(row);
+            Debug.Log(spot.transform.position);
         }
     }
 }
