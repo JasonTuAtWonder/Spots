@@ -43,8 +43,9 @@ public class BoardPresenter : MonoBehaviour
                 // Grab the spot that is being clicked on.
                 var current = hit.collider.GetComponent<SpotModel>();
 
-                // If they are the same, early return.
-                if (last == current)
+                // If the current spot is the same as any of the spots in the list, early return.
+                var found = BoardModel.ConnectedSpots.Find(spot => spot == current);
+                if (found)
                     return;
 
                 // If the colors don't match, early return.
