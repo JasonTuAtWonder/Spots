@@ -64,8 +64,6 @@ public class BoardPresenter : MonoBehaviour
 
                 // Else, add the spot to the list of connected spots.
                 BoardModel.ConnectedSpots.Add(current);
-
-                // TODO: also check that the current spot isn't in the chain of spots already
             }
         }
     }
