@@ -77,7 +77,7 @@ public class BoardPresenter : MonoBehaviour
             for (var x = 0; x < GameConfiguration.Width; x++)
             {
                 var spot = Instantiate(GameConfiguration.SpotPrefab);
-                spot.transform.position = new Vector3(x, y, 0);
+                spot.transform.position = new Vector3(x * 10, y * 10, 0);
                 row.Add(spot);
             }
 
@@ -95,12 +95,12 @@ public class BoardPresenter : MonoBehaviour
 
     static bool IsCardinallyAdjacent(Vector2 a, Vector2 b)
     {
-        if (a.x == b.x && Mathf.Abs(a.y - b.y) == 1)
+        if (a.x == b.x && Mathf.Abs(a.y - b.y) == 10f)
         {
             return true;
         }
 
-        if (a.y == b.y && Mathf.Abs(a.x - b.x) == 1)
+        if (a.y == b.y && Mathf.Abs(a.x - b.x) == 10f)
         {
             return true;
         }

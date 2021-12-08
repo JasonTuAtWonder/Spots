@@ -10,40 +10,51 @@ public class ConnectedSpotsPresenter : MonoBehaviour
     [NotNull] public BoardModel BoardModel;
 
     [Header("Views")]
-    [NotNull] public LineRenderer LineRenderer;
     [NotNull] public Camera Camera;
+    [NotNull] public LineRenderer ConnectingLines;
+    [NotNull] public LineRenderer MousePointerLine;
+
+    void Awake()
+    {
+        ConnectingLines.startWidth = 2f;
+        MousePointerLine.startWidth = 2f;
+    }
 
     void Update()
     {
+        UpdateConnectingLines();
+        UpdateMousePointerLine();
+
+        // TODO: line renderer takes the color of the first spot.
+    }
+
+    void UpdateConnectingLines()
+    { 
+        var positions = new List<Vector3>();
         var spots = BoardModel.ConnectedSpots;
 
-        // Map spots -> transforms.
-        var positions = new List<Vector3>();
         foreach (var spot in spots)
-        {
-            // local space
             positions.Add(spot.transform.position);
-        }
 
-        LineRenderer.startWidth = .1f;
-        LineRenderer.endWidth = .1f;
+        ConnectingLines.positionCount = positions.Count;
+	    ConnectingLines.SetPositions(positions.ToArray());
+    }
 
-        // Add the mouse position last.
-        if (positions.Count > 0)
+    void UpdateMousePointerLine()
+    {
+        var positions = new List<Vector3>();
+        var spots = BoardModel.ConnectedSpots;
+
+        if (spots.Count > 0)
         {
+            var last = spots[spots.Count - 1];
+            positions.Add(last.transform.position);
+
             var mouseWorldPos = Camera.ScreenToWorldPoint(Input.mousePosition);
             positions.Add(new Vector2(mouseWorldPos.x, mouseWorldPos.y));
         }
 
-        // Update the line renderer with the board model's connected spots.
-        LineRenderer.positionCount = positions.Count;
-        if (positions.Count > 0)
-        {
-            LineRenderer.SetPositions(positions.ToArray());
-        }
-
-        // TODO: line renderer takes the color of the first spot.
-
-        // TODO: last point of the line renderer is also the mouse position
+        MousePointerLine.positionCount = positions.Count;
+	    MousePointerLine.SetPositions(positions.ToArray());
     }
 }
