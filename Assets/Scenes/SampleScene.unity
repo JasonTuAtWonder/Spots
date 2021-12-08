@@ -173,7 +173,7 @@ LineRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -431,7 +431,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BoardModel: {fileID: 591714383}
   Camera: {fileID: 963194227}
-  LineRenderer: {fileID: 519289250}
+  ConnectingLines: {fileID: 519289250}
+  MousePointerLine: {fileID: 1626758431}
 --- !u!4 &1012181546
 Transform:
   m_ObjectHideFlags: 0
@@ -498,7 +499,7 @@ LineRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

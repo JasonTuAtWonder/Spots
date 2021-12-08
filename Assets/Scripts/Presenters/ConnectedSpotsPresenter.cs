@@ -24,8 +24,7 @@ public class ConnectedSpotsPresenter : MonoBehaviour
     {
         UpdateConnectingLines();
         UpdateMousePointerLine();
-
-        // TODO: line renderer takes the color of the first spot.
+        UpdateLineColor();
     }
 
     void UpdateConnectingLines()
@@ -56,5 +55,19 @@ public class ConnectedSpotsPresenter : MonoBehaviour
 
         MousePointerLine.positionCount = positions.Count;
 	    MousePointerLine.SetPositions(positions.ToArray());
+    }
+
+    void UpdateLineColor()
+    { 
+        var spots = BoardModel.ConnectedSpots;
+        if (spots.Count > 0)
+        {
+            var spot = spots[0];
+            Debug.Log(spot.Color);
+            ConnectingLines.startColor = spot.Color;
+            ConnectingLines.endColor = spot.Color;
+            MousePointerLine.startColor = spot.Color;
+            MousePointerLine.endColor = spot.Color;
+		}
     }
 }

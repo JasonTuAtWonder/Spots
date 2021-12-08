@@ -32,10 +32,12 @@ public class BoardModel : MonoBehaviour
 
     void Update()
     {
+        /*
         Debug.Log("connected spots: " + ConnectedSpots.Count);
         foreach (var spot in ConnectedSpots)
         {
             Debug.Log(spot.transform.position);
         }
+        */
     }
 }
