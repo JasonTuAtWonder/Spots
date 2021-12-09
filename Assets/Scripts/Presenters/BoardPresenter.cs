@@ -20,6 +20,41 @@ public class BoardPresenter : MonoBehaviour
     {
         UpdateConnectedSpots();
         HandleDisconnects();
+        // ReplenishSpots();
+    }
+
+    void ReplenishSpots()
+    {
+        // Update the board so that empty spots are filled by the spots above:
+
+        // For each column,
+        for (var x = 0; x < GameConfiguration.Width; x++)
+        { 
+			// Create a new column containing the non-null nodes.
+			List<SpotModel> newColumn = new List<SpotModel>();
+
+            // Populate the new column.
+            for (var y = 0; y < GameConfiguration.Height; y++)
+            {
+                var spot = BoardModel.Spots[y][x];
+                if (spot != null)
+                    newColumn.Add(spot);
+		    }
+
+            // Finally, update the grid. (Cache locality isn't great. :P)
+            for (var y = 0; y < newColumn.Count; y++)
+                BoardModel.Spots[y][x] = newColumn[y];
+            for (var y = newColumn.Count; y < GameConfiguration.Height; y++)
+                BoardModel.Spots[y][x] = null;
+
+            throw new System.Exception("jason look here");
+
+            // TODO: Update each spot's position. This should be done in SpotPresenter.
+            // ...
+
+			// TODO: Generate new spots to fill in the remainder of the row.
+			// ...
+		}
     }
 
     void InitializeBoard()
@@ -130,9 +165,6 @@ public class BoardPresenter : MonoBehaviour
 			    BoardModel.Spots[y][x] = null;
 			}
 		}
-
-		// update the board so that empty spots are filled
-		// by the spots above
     }
 
     /// <summary>
