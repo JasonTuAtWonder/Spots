@@ -18,21 +18,55 @@ public class BoardPresenter : MonoBehaviour
 
     void Update()
     {
-        UpdateCurrentTouch();
+        UpdateConnectedSpots();
+        HandleDisconnects();
+    }
 
-        if (BoardModel.CurrentMousePosition == null)
+    void InitializeBoard()
+    {
+        for (var y = 0; y < GameConfiguration.Height; y++)
         {
-            BoardModel.ConnectedSpots.Clear();
-            return;
+            var row = new List<SpotModel>();
+
+            for (var x = 0; x < GameConfiguration.Width; x++)
+            {
+                var spot = Instantiate(GameConfiguration.SpotPrefab);
+                spot.transform.position = BoardToWorldPosition(new Vector2(x, y));
+                row.Add(spot);
+            }
+
+            BoardModel.Spots.Add(row);
+        }
+    }
+
+    static bool IsCardinallyAdjacent(Vector2 a, Vector2 b)
+    {
+        if (a.x == b.x && Mathf.Abs(a.y - b.y) == 10f)
+        {
+            return true;
         }
 
-        Ray ray = Camera.ScreenPointToRay(BoardModel.CurrentMousePosition.Value);
+        if (a.y == b.y && Mathf.Abs(a.x - b.x) == 10f)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    void UpdateConnectedSpots()
+    {
+        if (!Input.GetMouseButton(0))
+            return;
+
+        var mouseWorldPos = Input.mousePosition;
+        Ray ray = Camera.ScreenPointToRay(mouseWorldPos);
         RaycastHit hit;
+
         if (Physics.Raycast(ray, out hit))
         {
             if (BoardModel.ConnectedSpots.Count == 0)
             {
-                // TODO: Does this need optimization?
                 BoardModel.ConnectedSpots.Add(hit.collider.GetComponent<SpotModel>());
             }
             else
@@ -68,43 +102,66 @@ public class BoardPresenter : MonoBehaviour
         }
     }
 
-    void InitializeBoard()
+    void HandleDisconnects()
     {
-        for (var y = 0; y < GameConfiguration.Height; y++)
-        {
-            var row = new List<SpotModel>();
+        if (!Input.GetMouseButtonUp(0))
+            return;
 
-            for (var x = 0; x < GameConfiguration.Width; x++)
-            {
-                var spot = Instantiate(GameConfiguration.SpotPrefab);
-                spot.transform.position = new Vector3(x * 10, y * 10, 0);
-                row.Add(spot);
-            }
+		// Grab a copy of the list of connected dots.
+        var connectedSpots = BoardModel.ConnectedSpots;
+		var spots = new List<SpotModel>(connectedSpots);
 
-            BoardModel.Spots.Add(row);
-        }
+		// Then clear the connected dots from the board.
+		connectedSpots.Clear();
+
+        // Perform a "disconnect" only if there are 2 or more connected spots.
+        if (spots.Count >= 2)
+        { 
+			foreach (var spot in spots)
+			{
+			    // Find the spot's position on the board.
+			    var boardPos = WorldToBoardPosition(spot.transform.position);
+			    var x = boardPos.Item1;
+			    var y = boardPos.Item2;
+
+			    // Clear that spot from the grid (leaving a `null` in its place).
+			    var toDestroy = BoardModel.Spots[y][x].gameObject;
+			    Destroy(toDestroy);
+			    BoardModel.Spots[y][x] = null;
+			}
+		}
+
+		// update the board so that empty spots are filled
+		// by the spots above
     }
 
-    void UpdateCurrentTouch()
+    /// <summary>
+    /// Given a Vector2 in board space, convert the board space coordinates into world space coordinates.
+    ///
+    /// Example: (1, 2) in board space translates to (10, 20) in world space.
+    ///
+    /// There is a difference between the two spaces mostly cause LineRenderer likes working with
+    /// larger line widths than 1. So this function allows us to customize the conversion between
+    /// the two coordinate spaces.
+    /// </summary>
+    public static Vector2 BoardToWorldPosition(Vector2 boardPos)
     {
-        if (Input.GetMouseButton(0))
-            BoardModel.CurrentMousePosition = Input.mousePosition;
-        else
-            BoardModel.CurrentMousePosition = null;
+        return boardPos * 10f;
     }
 
-    static bool IsCardinallyAdjacent(Vector2 a, Vector2 b)
+    /// <summary>
+    /// Given a Vector2 in world space, convert the world space coordinates into "board space" coordinates.
+    ///
+    /// Example: (10, 20) in world space translates to (1, 2) in board space.
+    ///
+    /// So we are referring to the spot that is 1 spot to the right of the left row,
+    /// and 2 spots up from the bottom row.
+    /// </summary>
+    public static (int, int) WorldToBoardPosition(Vector2 worldPos)
     {
-        if (a.x == b.x && Mathf.Abs(a.y - b.y) == 10f)
-        {
-            return true;
-        }
-
-        if (a.y == b.y && Mathf.Abs(a.x - b.x) == 10f)
-        {
-            return true;
-        }
-
-        return false;
+        var boardPos = worldPos * 0.1f;
+        var x = Mathf.FloorToInt(boardPos.x);
+        var y = Mathf.FloorToInt(boardPos.y);
+        return (x, y);
     }
 }

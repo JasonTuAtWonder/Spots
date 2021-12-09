@@ -44,7 +44,7 @@ public class ConnectedSpotsPresenter : MonoBehaviour
         var positions = new List<Vector3>();
         var spots = BoardModel.ConnectedSpots;
 
-        if (spots.Count > 0)
+        if (spots.Count > 0 && Input.GetMouseButton(0))
         {
             var last = spots[spots.Count - 1];
             positions.Add(last.transform.position);
