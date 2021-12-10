@@ -24,9 +24,4 @@ public class SpotPresenter : MonoBehaviour
     {
         spotMaterial.color = SpotModel.Color;
     }
-
-    void Update()
-    {
-        // Update the transform.position using the underlying SpotModel.
-    }
 }

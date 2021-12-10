@@ -1,5 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
+#if UNITY_EDITOR
+using UnityEngine.Assertions;
+#endif
 
 [DefaultExecutionOrder((int)ExecutionOrder.BoardPresenter)]
 public class BoardPresenter : MonoBehaviour
@@ -13,6 +16,27 @@ public class BoardPresenter : MonoBehaviour
 
     void Awake()
     {
+#if UNITY_EDITOR
+        Assert.AreEqual(SquareMechanic.IsSquare(0), false);
+	    Assert.AreEqual(SquareMechanic.IsSquare(1), true);
+	    Assert.AreEqual(SquareMechanic.IsSquare(2), false);
+	    Assert.AreEqual(SquareMechanic.IsSquare(3), false);
+	    Assert.AreEqual(SquareMechanic.IsSquare(4), true);
+	    Assert.AreEqual(SquareMechanic.IsSquare(5), false);
+	    Assert.AreEqual(SquareMechanic.IsSquare(6), false);
+	    Assert.AreEqual(SquareMechanic.IsSquare(7), false);
+	    Assert.AreEqual(SquareMechanic.IsSquare(8), false);
+	    Assert.AreEqual(SquareMechanic.IsSquare(9), true);
+	    Assert.AreEqual(SquareMechanic.IsSquare(10), false);
+	    Assert.AreEqual(SquareMechanic.IsSquare(11), false);
+	    Assert.AreEqual(SquareMechanic.IsSquare(12), false);
+	    Assert.AreEqual(SquareMechanic.IsSquare(13), false);
+	    Assert.AreEqual(SquareMechanic.IsSquare(14), false);
+	    Assert.AreEqual(SquareMechanic.IsSquare(15), false);
+	    Assert.AreEqual(SquareMechanic.IsSquare(16), true);
+        throw new System.Exception("testing stuff out");
+#endif
+
         InitializeBoard();
     }
 
@@ -120,18 +144,12 @@ public class BoardPresenter : MonoBehaviour
                 // Grab the spot that is being clicked on.
                 var current = hit.collider.GetComponent<SpotModel>();
 
-                // If the current spot is the same as any of the spots in the list, early return.
-                var found = BoardModel.ConnectedSpots.Find(spot => spot == current);
-                if (found)
-                    return;
-
-                // If the colors don't match, early return.
-                if (last.Color != current.Color)
-                    return;
-
                 // Grab the board position of both last and current spots.
                 var lastBoardPos = last.transform.position;
                 var currentBoardPos = current.transform.position;
+
+                // Compute whether the current spot is the same as any of the spots already in the list.
+                var found = BoardModel.ConnectedSpots.Find(spot => spot == current);
 
                 // If the spots are not cardinally adjacent, early return.
                 if (!IsCardinallyAdjacent(lastBoardPos, currentBoardPos))
@@ -139,10 +157,41 @@ public class BoardPresenter : MonoBehaviour
                     return;
                 }
 
+                // If the colors don't match, early return.
+                if (last.Color != current.Color)
+                    return;
+
+                // If the current spot is the same as any of the spots in the list,
+                if (found)
+                { 
+                    // TODO: Then check whether the cycle of connected spots is a square.
+                    // IsSquare(...)
+
+                    // TODO: Save the square info for later processing.
+                    // ...
+
+                    // And early return.
+                    return;
+				}
+
                 // Else, add the spot to the list of connected spots.
                 BoardModel.ConnectedSpots.Add(current);
             }
         }
+    }
+
+    /// <summary>
+    /// Check whether a list of spots contains a subsequence of spots in a square arrangement.
+    /// </summary>
+    bool IsSquare(List<SpotModel> spots)
+    {
+        // TODO: number of spots is a square number
+
+        // TODO: x directions make sense
+
+        // TODO: y directions make sense
+
+        return false;
     }
 
     void HandleDisconnects()
@@ -153,6 +202,13 @@ public class BoardPresenter : MonoBehaviour
 		// Grab a copy of the list of connected dots.
         var connectedSpots = BoardModel.ConnectedSpots;
 		var spots = new List<SpotModel>(connectedSpots);
+
+        /*
+        // TODO: Check whether there's a subsequence within connectedSpots that
+        // satisfies the "Square Mechanic".
+        var hasSquare = HasSquare(connectedSpots);
+        Debug.Log("has square: " + hasSquare);
+        */
 
 		// Then clear the connected dots from the board.
 		connectedSpots.Clear();
