@@ -35,6 +35,7 @@ public class BoardPresenter : MonoBehaviour
 	    Assert.AreEqual(SquareMechanic.IsSquare(15), false);
 	    Assert.AreEqual(SquareMechanic.IsSquare(16), true);
         throw new System.Exception("testing stuff out");
+        // TODO: jason look for todos in this file
 #endif
 
         InitializeBoard();
