@@ -14,14 +14,19 @@ public class SpotPresenter : MonoBehaviour
     void Awake()
     {
         spotMaterial = SpotView.material;
-        Render();
+        UpdateColor();
     }
 
     /// <summary>
     /// Bind the SpotModel's data to the SpotView.
     /// </summary>
-    void Render()
+    void UpdateColor()
     {
         spotMaterial.color = SpotModel.Color;
+    }
+
+    void Update()
+    {
+        // Update the transform.position using the underlying SpotModel.
     }
 }

@@ -20,7 +20,8 @@ public class BoardPresenter : MonoBehaviour
     {
         UpdateConnectedSpots();
         HandleDisconnects();
-        // ReplenishSpots();
+        ReplenishSpots();
+        UpdateSpotPositions();
     }
 
     void ReplenishSpots()
@@ -44,17 +45,23 @@ public class BoardPresenter : MonoBehaviour
             // Finally, update the grid. (Cache locality isn't great. :P)
             for (var y = 0; y < newColumn.Count; y++)
                 BoardModel.Spots[y][x] = newColumn[y];
+
+			// Generate new spots to fill in the remainder of the row.
             for (var y = newColumn.Count; y < GameConfiguration.Height; y++)
-                BoardModel.Spots[y][x] = null;
-
-            throw new System.Exception("jason look here");
-
-            // TODO: Update each spot's position. This should be done in SpotPresenter.
-            // ...
-
-			// TODO: Generate new spots to fill in the remainder of the row.
-			// ...
+            {
+                BoardModel.Spots[y][x] = InstantiateSpotAt(x, y);
+		    }
 		}
+    }
+
+    /// <summary>
+    /// Instantiate Spot at board coordinates (x, y).
+    /// </summary>
+    SpotModel InstantiateSpotAt(int x, int y)
+    {
+        var spot = Instantiate<SpotModel>(GameConfiguration.SpotPrefab);
+        spot.transform.position = BoardToWorldPosition(new Vector2(x, y));
+        return spot;
     }
 
     void InitializeBoard()
@@ -65,8 +72,9 @@ public class BoardPresenter : MonoBehaviour
 
             for (var x = 0; x < GameConfiguration.Width; x++)
             {
-                var spot = Instantiate(GameConfiguration.SpotPrefab);
-                spot.transform.position = BoardToWorldPosition(new Vector2(x, y));
+                // var spot = Instantiate(GameConfiguration.SpotPrefab);
+                // spot.transform.position = BoardToWorldPosition(new Vector2(x, y));
+                var spot = InstantiateSpotAt(x, y);
                 row.Add(spot);
             }
 
@@ -195,5 +203,23 @@ public class BoardPresenter : MonoBehaviour
         var x = Mathf.FloorToInt(boardPos.x);
         var y = Mathf.FloorToInt(boardPos.y);
         return (x, y);
+    }
+
+    /// <summary>
+    /// Update each spot's position based on its current board position. 
+    /// </summary>
+    void UpdateSpotPositions()
+    { 
+        for (var y = 0; y < GameConfiguration.Height; y++)
+        { 
+            for (var x = 0; x < GameConfiguration.Width; x++)
+            {
+                var spot = BoardModel.Spots[y][x];
+                if (spot != null)
+                { 
+					spot.transform.position = BoardToWorldPosition(new Vector2(x, y));
+				}
+		    }
+		}
     }
 }
