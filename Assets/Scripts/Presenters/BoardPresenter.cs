@@ -141,6 +141,9 @@ public class BoardPresenter : MonoBehaviour
                 // If the current spot is the same as any of the spots in the list,
                 if (found)
                 { 
+                    // TODO: test this out.
+                    // ...
+
                     // TODO: Then check whether the cycle of connected spots is a square.
                     // IsSquare(...)
 
