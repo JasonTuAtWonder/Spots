@@ -15,4 +15,12 @@ public class SpotModel : MonoBehaviour
     {
         Color = GameConfiguration.RandomColor();
     }
+
+    public Vector2Int BoardPosition
+    {
+        get
+        {
+			return Convert.WorldToBoardPosition(transform.position);
+		}
+    }
 }

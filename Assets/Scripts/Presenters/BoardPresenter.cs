@@ -1,8 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
-#if UNITY_EDITOR
-using UnityEngine.Assertions;
-#endif
+using System.Linq;
 
 [DefaultExecutionOrder((int)ExecutionOrder.BoardPresenter)]
 public class BoardPresenter : MonoBehaviour
@@ -16,28 +14,6 @@ public class BoardPresenter : MonoBehaviour
 
     void Awake()
     {
-#if UNITY_EDITOR
-        Assert.AreEqual(SquareMechanic.IsSquare(0), false);
-	    Assert.AreEqual(SquareMechanic.IsSquare(1), true);
-	    Assert.AreEqual(SquareMechanic.IsSquare(2), false);
-	    Assert.AreEqual(SquareMechanic.IsSquare(3), false);
-	    Assert.AreEqual(SquareMechanic.IsSquare(4), true);
-	    Assert.AreEqual(SquareMechanic.IsSquare(5), false);
-	    Assert.AreEqual(SquareMechanic.IsSquare(6), false);
-	    Assert.AreEqual(SquareMechanic.IsSquare(7), false);
-	    Assert.AreEqual(SquareMechanic.IsSquare(8), false);
-	    Assert.AreEqual(SquareMechanic.IsSquare(9), true);
-	    Assert.AreEqual(SquareMechanic.IsSquare(10), false);
-	    Assert.AreEqual(SquareMechanic.IsSquare(11), false);
-	    Assert.AreEqual(SquareMechanic.IsSquare(12), false);
-	    Assert.AreEqual(SquareMechanic.IsSquare(13), false);
-	    Assert.AreEqual(SquareMechanic.IsSquare(14), false);
-	    Assert.AreEqual(SquareMechanic.IsSquare(15), false);
-	    Assert.AreEqual(SquareMechanic.IsSquare(16), true);
-        throw new System.Exception("testing stuff out");
-        // TODO: jason look for todos in this file
-#endif
-
         InitializeBoard();
     }
 
@@ -85,7 +61,7 @@ public class BoardPresenter : MonoBehaviour
     SpotModel InstantiateSpotAt(int x, int y)
     {
         var spot = Instantiate<SpotModel>(GameConfiguration.SpotPrefab);
-        spot.transform.position = BoardToWorldPosition(new Vector2(x, y));
+        spot.transform.position = Convert.BoardToWorldPosition(new Vector2(x, y));
         return spot;
     }
 
@@ -182,17 +158,166 @@ public class BoardPresenter : MonoBehaviour
     }
 
     /// <summary>
+    /// Check whether a line of spots follows a certain direction,
+    /// with each spot 1 board unit after the other.
+    ///
+    /// For example, a line (with numbers indicating order) such as:
+    ///
+    ///     1 2 3
+    ///
+    /// Would satisfy the Direction.RIGHT criteria.
+    ///
+    /// Whereas a line such as:
+    ///
+    ///     3
+    ///     2
+    ///     1
+    ///
+    /// Would satisfy the Direction.UP criteria.
+    /// </summary>
+    private static bool LineFollowsDirection(List<SpotModel> lineOfSpots, Direction direction)
+    {
+        if (direction == Direction.INVALID)
+            return false;
+
+	    for (var i = 0; i < lineOfSpots.Count - 1; i++)
+        {
+            var current = lineOfSpots[i].BoardPosition;
+            var next = lineOfSpots[i + 1].BoardPosition;
+
+            if (direction == Direction.UP)
+            { 
+                if (next.y != current.y + 1)
+                    return false;
+		    }
+            else if (direction == Direction.DOWN)
+            {
+                if (next.y != current.y - 1)
+                    return false;
+		    }
+            else if (direction == Direction.LEFT)
+            {
+                if (next.x != current.x - 1)
+                    return false;
+		    }
+            else if (direction == Direction.RIGHT)
+            {
+                if (next.x != current.x + 1)
+                    return false;
+		    }
+            else
+            {
+                throw new System.Exception($"Unsupported direction: {direction}");
+		    }
+		}
+
+        return true;
+    }
+
+    /// <summary>
+    /// Get the direction of spot2.BoardPosition - spot1.BoardPosition.
+    ///
+    /// If the 2 spots are not adjacent, then this method will return Direction.INVALID.
+    /// </summary>
+    private static Direction GetDirection(SpotModel spot1, SpotModel spot2)
+    {
+        var boardPos1 = spot1.BoardPosition;
+        var boardPos2 = spot2.BoardPosition;
+
+        var xDiff = Mathf.Abs(boardPos1.x - boardPos2.x);
+        var yDiff = Mathf.Abs(boardPos1.y - boardPos2.y);
+
+        if (xDiff + yDiff != 1)
+            return Direction.INVALID;
+
+        if (SquareMechanic.Sign(boardPos2.x - boardPos1.x) == Sign.ZERO)
+        {
+            // Then this is a vertical direction.
+            var ySign = SquareMechanic.Sign(boardPos2.y - boardPos1.y);
+            if (ySign == Sign.POSITIVE)
+                return Direction.UP;
+            else if (ySign == Sign.NEGATIVE)
+                return Direction.DOWN;
+		}
+        else
+        {
+            // Then this is a horizontal direction.
+            var xSign = SquareMechanic.Sign(boardPos2.x - boardPos1.x);
+            if (xSign == Sign.POSITIVE)
+                return Direction.RIGHT;
+            else if (xSign == Sign.NEGATIVE)
+                return Direction.LEFT;
+		}
+
+        return Direction.INVALID;
+    }
+
+    private static Direction Flip(Direction dir)
+    {
+        if (dir == Direction.UP)
+        {
+            return Direction.DOWN;
+		}
+        else if (dir == Direction.DOWN)
+        {
+            return Direction.UP;
+		}
+        else if (dir == Direction.LEFT)
+        {
+            return Direction.RIGHT;
+		}
+        else if (dir == Direction.RIGHT)
+        {
+            return Direction.LEFT;
+		}
+        else if (dir == Direction.INVALID)
+        {
+            return Direction.INVALID;
+		}
+        else
+        {
+            throw new System.Exception($"Unsupported direction: {dir}");
+		}
+    }
+
+    /// <summary>
     /// Check whether a list of spots contains a subsequence of spots in a square arrangement.
     /// </summary>
-    bool IsSquare(List<SpotModel> spots)
+    public static bool IsSquare(List<SpotModel> spots)
     {
-        // TODO: number of spots is a square number
+        if (!SquareMechanic.IsSquare(spots.Count))
+        {
+            return false;
+		}
 
-        // TODO: x directions make sense
+        // Compute the length of a square side.
+        var squareLen = spots.Count / 4 + 1;
 
-        // TODO: y directions make sense
+        // Ensure the direction of the first line segment is correct.
+        var firstLineDirection = GetDirection(spots[0], spots[1]);
+        var ok = LineFollowsDirection(spots.Take(squareLen).ToList(), firstLineDirection);
+        if (!ok)
+            return false;
 
-        return false;
+        // Ensure the direction of the third line segment is correct.
+        var thirdLineDirection = Flip(firstLineDirection);
+        ok = LineFollowsDirection(spots.Skip(squareLen * 2 - 2).Take(squareLen).ToList(), thirdLineDirection);
+        if (!ok)
+            return false;
+
+        // Ensure the direction of the second line segment is correct.
+        var secondLineDirection = GetDirection(spots[squareLen], spots[squareLen + 1]);
+        ok = LineFollowsDirection(spots.Skip(squareLen - 1).Take(squareLen).ToList(), secondLineDirection);
+        if (!ok)
+            return false;
+
+        // Ensure the direction of the fourth line segment is correct.
+        var fourthLineDirection = Flip(secondLineDirection);
+        ok = LineFollowsDirection(spots.Skip(squareLen * 3 - 3).Take(squareLen).ToList(), fourthLineDirection);
+        if (!ok)
+            return false;
+
+        return true;
     }
 
     void HandleDisconnects()
@@ -220,9 +345,9 @@ public class BoardPresenter : MonoBehaviour
 			foreach (var spot in spots)
 			{
 			    // Find the spot's position on the board.
-			    var boardPos = WorldToBoardPosition(spot.transform.position);
-			    var x = boardPos.Item1;
-			    var y = boardPos.Item2;
+			    var boardPos = Convert.WorldToBoardPosition(spot.transform.position);
+                var x = boardPos.x;
+                var y = boardPos.y;
 
 			    // Clear that spot from the grid (leaving a `null` in its place).
 			    var toDestroy = BoardModel.Spots[y][x].gameObject;
@@ -230,36 +355,6 @@ public class BoardPresenter : MonoBehaviour
 			    BoardModel.Spots[y][x] = null;
 			}
 		}
-    }
-
-    /// <summary>
-    /// Given a Vector2 in board space, convert the board space coordinates into world space coordinates.
-    ///
-    /// Example: (1, 2) in board space translates to (10, 20) in world space.
-    ///
-    /// There is a difference between the two spaces mostly cause LineRenderer likes working with
-    /// larger line widths than 1. So this function allows us to customize the conversion between
-    /// the two coordinate spaces.
-    /// </summary>
-    public static Vector2 BoardToWorldPosition(Vector2 boardPos)
-    {
-        return boardPos * 10f;
-    }
-
-    /// <summary>
-    /// Given a Vector2 in world space, convert the world space coordinates into "board space" coordinates.
-    ///
-    /// Example: (10, 20) in world space translates to (1, 2) in board space.
-    ///
-    /// So we are referring to the spot that is 1 spot to the right of the left row,
-    /// and 2 spots up from the bottom row.
-    /// </summary>
-    public static (int, int) WorldToBoardPosition(Vector2 worldPos)
-    {
-        var boardPos = worldPos * 0.1f;
-        var x = Mathf.FloorToInt(boardPos.x);
-        var y = Mathf.FloorToInt(boardPos.y);
-        return (x, y);
     }
 
     /// <summary>
@@ -274,7 +369,7 @@ public class BoardPresenter : MonoBehaviour
                 var spot = BoardModel.Spots[y][x];
                 if (spot != null)
                 { 
-					spot.transform.position = BoardToWorldPosition(new Vector2(x, y));
+					spot.transform.position = Convert.BoardToWorldPosition(new Vector2(x, y));
 				}
 		    }
 		}
