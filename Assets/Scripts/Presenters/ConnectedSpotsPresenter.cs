@@ -63,7 +63,7 @@ public class ConnectedSpotsPresenter : MonoBehaviour
         if (spots.Count > 0)
         {
             var spot = spots[0];
-            Debug.Log(spot.Color);
+            // Debug.Log(spot.Color);
             ConnectingLines.startColor = spot.Color;
             ConnectingLines.endColor = spot.Color;
             MousePointerLine.startColor = spot.Color;

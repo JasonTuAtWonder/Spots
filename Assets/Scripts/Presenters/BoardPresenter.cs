@@ -19,8 +19,8 @@ public class BoardPresenter : MonoBehaviour
 
     void Update()
     {
-        UpdateConnectedSpots();
-        HandleDisconnects();
+        var isSquare = UpdateConnectedSpots();
+        HandleDisconnects(isSquare);
         ReplenishSpots();
         UpdateSpotPositions();
     }
@@ -98,10 +98,15 @@ public class BoardPresenter : MonoBehaviour
         return false;
     }
 
-    void UpdateConnectedSpots()
+
+    /// <summary>
+    /// Add to the BoardModel's ConnectedSpots given the current frame's state.
+    /// </summary>
+    /// <returns>Whether a square was detected.</returns>
+    bool UpdateConnectedSpots()
     {
         if (!Input.GetMouseButton(0))
-            return;
+            return false;
 
         var mouseWorldPos = Input.mousePosition;
         Ray ray = Camera.ScreenPointToRay(mouseWorldPos);
@@ -126,38 +131,40 @@ public class BoardPresenter : MonoBehaviour
                 var currentBoardPos = current.transform.position;
 
                 // Compute whether the current spot is the same as any of the spots already in the list.
-                var found = BoardModel.ConnectedSpots.Find(spot => spot == current);
+                // var found = BoardModel.ConnectedSpots.Find(spot => spot == current);
+                var foundIndex = BoardModel.ConnectedSpots.FindIndex(spot => spot == current);
 
                 // If the spots are not cardinally adjacent, early return.
                 if (!IsCardinallyAdjacent(lastBoardPos, currentBoardPos))
                 {
-                    return;
+                    return false;
                 }
 
                 // If the colors don't match, early return.
                 if (last.Color != current.Color)
-                    return;
+                    return false;
 
                 // If the current spot is the same as any of the spots in the list,
-                if (found)
+                if (foundIndex == 0)
                 { 
-                    // TODO: test this out.
-                    // ...
-
-                    // TODO: Then check whether the cycle of connected spots is a square.
-                    // IsSquare(...)
-
-                    // TODO: Save the square info for later processing.
-                    // ...
-
-                    // And early return.
-                    return;
+                    var isSquare = IsSquare(BoardModel.ConnectedSpots);
+                    if (isSquare)
+                    {
+                        return true;
+				    }
+				}
+                else if (foundIndex > -1)
+                {
+                    // Then early return.
+                    return false;
 				}
 
                 // Else, add the spot to the list of connected spots.
                 BoardModel.ConnectedSpots.Add(current);
             }
         }
+
+        return false;
     }
 
     /// <summary>
@@ -300,52 +307,77 @@ public class BoardPresenter : MonoBehaviour
         var firstLineDirection = GetDirection(spots[0], spots[1]);
         var ok = LineFollowsDirection(spots.Take(squareLen).ToList(), firstLineDirection);
         if (!ok)
+        {
             return false;
+		}
 
         // Ensure the direction of the third line segment is correct.
         var thirdLineDirection = Flip(firstLineDirection);
         ok = LineFollowsDirection(spots.Skip(squareLen * 2 - 2).Take(squareLen).ToList(), thirdLineDirection);
         if (!ok)
+        {
             return false;
+		}
 
         // Ensure the direction of the second line segment is correct.
-        var secondLineDirection = GetDirection(spots[squareLen], spots[squareLen + 1]);
+        var secondLineDirection = GetDirection(spots[squareLen - 1], spots[squareLen]);
         ok = LineFollowsDirection(spots.Skip(squareLen - 1).Take(squareLen).ToList(), secondLineDirection);
         if (!ok)
+        {
             return false;
+		}
 
         // Ensure the direction of the fourth line segment is correct.
         var fourthLineDirection = Flip(secondLineDirection);
         ok = LineFollowsDirection(spots.Skip(squareLen * 3 - 3).Take(squareLen).ToList(), fourthLineDirection);
         if (!ok)
+        {
             return false;
+		}
 
         return true;
     }
 
-    void HandleDisconnects()
+    void HandleDisconnects(bool isSquare)
     {
-        if (!Input.GetMouseButtonUp(0))
+        if (!Input.GetMouseButtonUp(0) && !isSquare)
             return;
 
 		// Grab a copy of the list of connected dots.
         var connectedSpots = BoardModel.ConnectedSpots;
-		var spots = new List<SpotModel>(connectedSpots);
-
-        /*
-        // TODO: Check whether there's a subsequence within connectedSpots that
-        // satisfies the "Square Mechanic".
-        var hasSquare = HasSquare(connectedSpots);
-        Debug.Log("has square: " + hasSquare);
-        */
+		var spotsToDestroy = new List<SpotModel>(connectedSpots);
 
 		// Then clear the connected dots from the board.
 		connectedSpots.Clear();
 
+        if (isSquare)
+        {
+            // Then also add all spots of the same color as the connected square dots:
+
+            // Find the color of the connected square dots.
+            var colorMatch = spotsToDestroy[0].Color;
+
+            // And add all dots of the same color to our spotsToDestroy.
+            for (var y = 0; y < GameConfiguration.Height; y++)
+            { 
+                for (var x = 0; x < GameConfiguration.Width; x++)
+                {
+                    var spot = BoardModel.Spots[y][x];
+                    if (spot.Color == colorMatch)
+                    {
+                        spotsToDestroy.Add(spot);
+				    }
+				}
+		    }
+
+            // Then, because there might be dupes in spotsToDestroy, we de-dupe.
+            spotsToDestroy = spotsToDestroy.Distinct().ToList();
+		}
+
         // Perform a "disconnect" only if there are 2 or more connected spots.
-        if (spots.Count >= 2)
+        if (spotsToDestroy.Count >= 2)
         { 
-			foreach (var spot in spots)
+			foreach (var spot in spotsToDestroy)
 			{
 			    // Find the spot's position on the board.
 			    var boardPos = Convert.WorldToBoardPosition(spot.transform.position);
