@@ -11,9 +11,9 @@ public static class Convert
     /// larger line widths than 1. So this function allows us to customize the conversion between
     /// the two coordinate spaces.
     /// </summary>
-    public static Vector2 BoardToWorldPosition(Vector2 boardPos)
+    public static Vector2 BoardToWorldPosition(Vector2Int boardPos)
     {
-        return boardPos * 10f;
+        return boardPos * 10;
     }
 
     /// <summary>

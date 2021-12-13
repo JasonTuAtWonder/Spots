@@ -14,7 +14,38 @@ public class BoardPresenter : MonoBehaviour
 
     void Awake()
     {
+        InitializeColliders();
         InitializeBoard();
+    }
+
+    // Initialize the row colliders that facilitate a physics-based bounce animation for the spots.
+    void InitializeColliders()
+    { 
+        for (var i = 0; i < GameConfiguration.Height; i++)
+        {
+            var obj = new GameObject();
+            var collider = obj.AddComponent<BoxCollider>();
+
+            // Set the layer.
+            obj.layer = Layer.Floor(i);
+
+            // Compute and set the collider's dimensions.
+            const float BUFFER_HEIGHT = 3.0f;
+            var boardDimensions = new Vector2Int((int)GameConfiguration.Width, i);
+            var worldDimensions = Convert.BoardToWorldPosition(boardDimensions);
+            worldDimensions.y += BUFFER_HEIGHT; // Add some buffer height to avoid the zero-height collider for i=0.
+            collider.size = new Vector3(worldDimensions.x, worldDimensions.y, 5.0f);
+
+            // Position the collider properly.
+            obj.transform.position = new Vector3(
+				worldDimensions.x * .5f - 5f,
+				worldDimensions.y * .5f - 2.5f - BUFFER_HEIGHT,
+			    0f
+			);
+
+            // Set the collider's game object name.
+            obj.name = $"Floor Collider {i + 1}";
+		}
     }
 
     void Update()
@@ -61,7 +92,7 @@ public class BoardPresenter : MonoBehaviour
     SpotModel InstantiateSpotAt(int x, int y)
     {
         var spot = Instantiate<SpotModel>(GameConfiguration.SpotPrefab);
-        spot.transform.position = Convert.BoardToWorldPosition(new Vector2(x, y));
+        spot.transform.position = Convert.BoardToWorldPosition(new Vector2Int(x, y));
         return spot;
     }
 
@@ -404,7 +435,7 @@ public class BoardPresenter : MonoBehaviour
                 var spot = BoardModel.Spots[y][x];
                 if (spot != null)
                 { 
-					spot.transform.position = Convert.BoardToWorldPosition(new Vector2(x, y));
+					spot.transform.position = Convert.BoardToWorldPosition(new Vector2Int(x, y));
 				}
 		    }
 		}

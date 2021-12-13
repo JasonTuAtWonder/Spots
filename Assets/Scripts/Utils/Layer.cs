@@ -12,7 +12,7 @@ public static class Layer
     /// </summary>
     public static List<string> FloorNames = new List<string>
     {
-        "INVALID",
+        "Spots Floor 0",
         "Spots Floor 1",
         "Spots Floor 2",
         "Spots Floor 3",
@@ -22,7 +22,6 @@ public static class Layer
         "Spots Floor 7",
         "Spots Floor 8",
         "Spots Floor 9",
-        "Spots Floor 10",
     };
 
     /// <summary>
