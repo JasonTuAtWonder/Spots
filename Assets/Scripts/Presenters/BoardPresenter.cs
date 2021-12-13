@@ -11,6 +11,7 @@ public class BoardPresenter : MonoBehaviour
 
     [Header("Views")]
     [NotNull] public Camera Camera;
+    [NotNull] public PhysicMaterial BounceMaterial;
 
     void Awake()
     {
@@ -44,7 +45,10 @@ public class BoardPresenter : MonoBehaviour
 			);
 
             // Set the collider's game object name.
-            obj.name = $"Floor Collider {i + 1}";
+            obj.name = $"Floor Collider {i}";
+
+            // Set the collider's PhysicMaterial.
+            collider.material = BounceMaterial;
 		}
     }
 
