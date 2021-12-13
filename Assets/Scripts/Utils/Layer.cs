@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 public static class Layer
 {
@@ -23,4 +24,14 @@ public static class Layer
         "Spots Floor 9",
         "Spots Floor 10",
     };
+
+    /// <summary>
+    /// Given a floor index, get the corresponding layer index.
+    ///
+    /// This is a convenience method that makes it easier to fetch layer indices.
+    /// </summary>
+    public static int Floor(int floorIndex)
+    {
+        return LayerMask.NameToLayer(FloorNames[floorIndex]);
+    }
 }
