@@ -26,7 +26,9 @@ public class SpotModel : MonoBehaviour
 
     // desired position
 
-    // current position
+    // current position (transform.position)
+
+    // current board position (BoardPosition)
 
     // easing curve (ease in out
 }
