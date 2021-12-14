@@ -57,7 +57,7 @@ public class BoardPresenter : MonoBehaviour
         var isSquare = UpdateConnectedSpots();
         HandleDisconnects(isSquare);
         ReplenishSpots();
-        UpdateSpotPositions();
+        // UpdateSpotPositions();
     }
 
     void ReplenishSpots()
