@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 [DefaultExecutionOrder((int)ExecutionOrder.SpotModel)]
 public class SpotModel : MonoBehaviour
@@ -18,17 +19,36 @@ public class SpotModel : MonoBehaviour
 
     public Vector2Int BoardPosition
     {
+        get;
+        set;
+    }
+
+    public Vector2 DesiredPosition
+    {
         get
         {
-			return Convert.WorldToBoardPosition(transform.position);
+            return Convert.BoardToWorldPosition(BoardPosition);
 		}
     }
 
-    // desired position
+    public IEnumerator AnimateToDesired(float duration)
+    {
+        var from = transform.position;
+        var to = DesiredPosition;
+        var journey = 0f;
 
-    // current position (transform.position)
+        while (journey <= duration)
+        {
+            // Update elapsed time.
+            journey += Time.deltaTime;
 
-    // current board position (BoardPosition)
+            // Update position using elapsed time.
+            float t = Mathf.Clamp01(journey / duration);
+            t = Easing.EaseOutBounce(t); // Make animation bouncy.
+            transform.position = Vector3.Lerp(from, to, t);
 
-    // easing curve (ease in out
+            // Complete one step of coroutine execution.
+            yield return null;
+        }
+    }
 }

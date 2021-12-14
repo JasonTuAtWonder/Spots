@@ -16,6 +16,20 @@ public class BoardPresenter : MonoBehaviour
     void Awake()
     {
         InitializeBoard();
+        UpdateInitialSpotPositions();
+        KickOffAnimations();
+    }
+
+    void KickOffAnimations()
+    { 
+        for (var y = 0; y < GameConfiguration.Height; y++)
+        { 
+            for (var x = 0; x < GameConfiguration.Width; x++)
+            {
+                var spotModel = BoardModel.Spots[y][x];
+                StartCoroutine(spotModel.AnimateToDesired(1f));
+		    }
+		}
     }
 
     // Initialize the row colliders that facilitate a physics-based bounce animation for the spots.
@@ -56,7 +70,7 @@ public class BoardPresenter : MonoBehaviour
         var isSquare = UpdateConnectedSpots();
         HandleDisconnects(isSquare);
         ReplenishSpots();
-        UpdateSpotPositions();
+        // UpdateSpotPositions();
     }
 
     void ReplenishSpots()
@@ -95,7 +109,7 @@ public class BoardPresenter : MonoBehaviour
     SpotModel InstantiateSpotAt(int x, int y)
     {
         var spot = Instantiate<SpotModel>(GameConfiguration.SpotPrefab);
-        spot.transform.position = Convert.BoardToWorldPosition(new Vector2Int(x, y));
+        spot.BoardPosition = new Vector2Int(x, y);
         return spot;
     }
 
@@ -107,8 +121,6 @@ public class BoardPresenter : MonoBehaviour
 
             for (var x = 0; x < GameConfiguration.Width; x++)
             {
-                // var spot = Instantiate(GameConfiguration.SpotPrefab);
-                // spot.transform.position = BoardToWorldPosition(new Vector2(x, y));
                 var spot = InstantiateSpotAt(x, y);
                 row.Add(spot);
             }
@@ -430,8 +442,8 @@ public class BoardPresenter : MonoBehaviour
         { 
 			foreach (var spot in spotsToDestroy)
 			{
-			    // Find the spot's position on the board.
-			    var boardPos = Convert.WorldToBoardPosition(spot.transform.position);
+                // Find the spot's position on the board.
+                var boardPos = spot.BoardPosition;
                 var x = boardPos.x;
                 var y = boardPos.y;
 
@@ -450,7 +462,7 @@ public class BoardPresenter : MonoBehaviour
     /// <summary>
     /// Update each spot's position based on its current board position. 
     /// </summary>
-    void UpdateSpotPositions()
+    void UpdateInitialSpotPositions()
     { 
         for (var y = 0; y < GameConfiguration.Height; y++)
         { 
@@ -460,6 +472,7 @@ public class BoardPresenter : MonoBehaviour
                 if (spot != null)
                 { 
 					spot.transform.position = Convert.BoardToWorldPosition(new Vector2Int(x, y));
+                    spot.transform.position += new Vector3(0f, 30f, 0f);
 				}
 		    }
 		}
