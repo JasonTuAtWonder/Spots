@@ -15,12 +15,11 @@ public class BoardPresenter : MonoBehaviour
 
     void Awake()
     {
-        InitializeColliders();
         InitializeBoard();
     }
 
     // Initialize the row colliders that facilitate a physics-based bounce animation for the spots.
-    void InitializeColliders()
+    void unused__InitializeColliders()
     { 
         for (var i = 0; i < GameConfiguration.Height; i++)
         {
@@ -57,7 +56,7 @@ public class BoardPresenter : MonoBehaviour
         var isSquare = UpdateConnectedSpots();
         HandleDisconnects(isSquare);
         ReplenishSpots();
-        // UpdateSpotPositions();
+        UpdateSpotPositions();
     }
 
     void ReplenishSpots()
@@ -436,10 +435,14 @@ public class BoardPresenter : MonoBehaviour
                 var x = boardPos.x;
                 var y = boardPos.y;
 
-			    // Clear that spot from the grid (leaving a `null` in its place).
-			    var toDestroy = BoardModel.Spots[y][x].gameObject;
-			    Destroy(toDestroy);
-			    BoardModel.Spots[y][x] = null;
+                // Clear that spot from the grid (leaving a `null` in its place).
+                var spotModel = BoardModel.Spots[y][x];
+                if (spotModel != null)
+                { 
+				    var toDestroy = BoardModel.Spots[y][x].gameObject;
+				    Destroy(toDestroy);
+				    BoardModel.Spots[y][x] = null;
+				}
 			}
 		}
     }

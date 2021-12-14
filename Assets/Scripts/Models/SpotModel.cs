@@ -23,4 +23,10 @@ public class SpotModel : MonoBehaviour
 			return Convert.WorldToBoardPosition(transform.position);
 		}
     }
+
+    // desired position
+
+    // current position
+
+    // easing curve (ease in out
 }
