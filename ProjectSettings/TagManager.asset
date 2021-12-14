@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Spot
   layers:
   - Default
   - TransparentFX
@@ -22,7 +23,7 @@ TagManager:
   - Spots Floor 9
   - 
   - Spots Floor 0
-  - 
+  - Spots
   - 
   - 
   - 

@@ -93,9 +93,9 @@ GameObject:
   - component: {fileID: 7394175089341421663}
   - component: {fileID: 7394175089341421659}
   - component: {fileID: 7394175089341421658}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: Spot
-  m_TagString: Untagged
+  m_TagString: Spot
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

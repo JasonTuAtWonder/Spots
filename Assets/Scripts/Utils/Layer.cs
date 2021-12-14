@@ -24,6 +24,14 @@ public static class Layer
         "Spots Floor 9",
     };
 
+    public static int SpotsLayerIndex
+    { 
+        get
+        {
+            return LayerMask.NameToLayer("Spots");
+		}
+    }
+
     /// <summary>
     /// Given a floor index, get the corresponding layer index.
     ///

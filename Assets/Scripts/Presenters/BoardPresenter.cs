@@ -145,13 +145,21 @@ public class BoardPresenter : MonoBehaviour
 
         var mouseWorldPos = Input.mousePosition;
         Ray ray = Camera.ScreenPointToRay(mouseWorldPos);
-        RaycastHit hit;
+        var hits = Physics.RaycastAll(ray);
 
-        if (Physics.Raycast(ray, out hit))
+        foreach (var hitInfo in hits)
         {
+            var isSpot = hitInfo.collider.gameObject.CompareTag("Spot");
+            if (!isSpot)
+                continue;
+
+            var spotModel = hitInfo.collider.GetComponent<SpotModel>();
+            if (spotModel == null)
+                throw new System.Exception("spotModel should not be null.");
+
             if (BoardModel.ConnectedSpots.Count == 0)
             {
-                BoardModel.ConnectedSpots.Add(hit.collider.GetComponent<SpotModel>());
+                BoardModel.ConnectedSpots.Add(spotModel);
             }
             else
             {
@@ -159,9 +167,13 @@ public class BoardPresenter : MonoBehaviour
                 var last = BoardModel.ConnectedSpots[BoardModel.ConnectedSpots.Count - 1];
 
                 // Grab the spot that is being clicked on.
-                var current = hit.collider.GetComponent<SpotModel>();
+                var current = spotModel;
+                if (current == null)
+                    throw new System.Exception("wtf, current is null");
 
                 // Grab the board position of both last and current spots.
+                if (last == null)
+                    throw new System.Exception("wtf");
                 var lastBoardPos = last.transform.position;
                 var currentBoardPos = current.transform.position;
 
@@ -195,9 +207,14 @@ public class BoardPresenter : MonoBehaviour
 				}
 
                 // Else, add the spot to the list of connected spots.
+                if (current == null)
+                    throw new System.Exception("wtf, current is null");
                 BoardModel.ConnectedSpots.Add(current);
             }
-        }
+
+            // Break out of loop once we've processed a spot.
+            break;
+		}
 
         return false;
     }
