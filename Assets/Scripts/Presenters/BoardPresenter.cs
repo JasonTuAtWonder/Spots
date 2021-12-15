@@ -20,6 +20,13 @@ public class BoardPresenter : MonoBehaviour
         KickOffAnimations();
     }
 
+    void Update()
+    {
+        var isSquare = UpdateConnectedSpots();
+        HandleDisconnects(isSquare);
+        ReplenishSpots();
+    }
+
     void KickOffAnimations()
     { 
         for (var y = 0; y < GameConfiguration.Height; y++)
@@ -65,17 +72,12 @@ public class BoardPresenter : MonoBehaviour
 		}
     }
 
-    void Update()
-    {
-        var isSquare = UpdateConnectedSpots();
-        HandleDisconnects(isSquare);
-        ReplenishSpots();
-        // UpdateSpotPositions();
-    }
-
+    /// <summary>
+    /// Update the board so that empty spots are filled by the spots above.
+    /// </summary>
     void ReplenishSpots()
     {
-        // Update the board so that empty spots are filled by the spots above:
+        var numNewSpots = 0;
 
         // For each column,
         for (var x = 0; x < GameConfiguration.Width; x++)
@@ -86,20 +88,33 @@ public class BoardPresenter : MonoBehaviour
             // Populate the new column.
             for (var y = 0; y < GameConfiguration.Height; y++)
             {
-                var spot = BoardModel.Spots[y][x];
+                var row = BoardModel?.Spots[y];
+                if (row == null)
+                    continue;
+
+                var spot = row[x];
                 if (spot != null)
                     newColumn.Add(spot);
 		    }
 
             // Finally, update the grid. (Cache locality isn't great. :P)
             for (var y = 0; y < newColumn.Count; y++)
+            { 
                 BoardModel.Spots[y][x] = newColumn[y];
+                newColumn[y].BoardPosition = new Vector2Int(x, y);
+		    }
 
 			// Generate new spots to fill in the remainder of the row.
             for (var y = newColumn.Count; y < GameConfiguration.Height; y++)
             {
                 BoardModel.Spots[y][x] = InstantiateSpotAt(x, y);
+                numNewSpots++;
 		    }
+		}
+
+        if (numNewSpots > 0)
+        {
+            KickOffAnimations();
 		}
     }
 
@@ -110,6 +125,7 @@ public class BoardPresenter : MonoBehaviour
     {
         var spot = Instantiate<SpotModel>(GameConfiguration.SpotPrefab);
         spot.BoardPosition = new Vector2Int(x, y);
+        spot.transform.position = InitialSpotPosition(spot.BoardPosition);
         return spot;
     }
 
@@ -471,10 +487,16 @@ public class BoardPresenter : MonoBehaviour
                 var spot = BoardModel.Spots[y][x];
                 if (spot != null)
                 { 
-					spot.transform.position = Convert.BoardToWorldPosition(new Vector2Int(x, y));
-                    spot.transform.position += new Vector3(0f, 30f, 0f);
+					spot.transform.position = InitialSpotPosition(new Vector2Int(x, y));
 				}
 		    }
 		}
+    }
+
+    Vector3 InitialSpotPosition(Vector2Int boardPosition)
+    { 
+		var worldPos = Convert.BoardToWorldPosition(boardPosition);
+        worldPos += new Vector2(0f, 30f);
+        return worldPos;
     }
 }
