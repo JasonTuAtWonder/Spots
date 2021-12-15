@@ -194,15 +194,7 @@ LineRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Positions:
-  - {x: -4.2214165, y: 8.447951, z: 0}
-  - {x: -6.5439014, y: 7.635519, z: 0}
-  - {x: -5.9517865, y: 9.278243, z: 0}
-  - {x: -3.4894338, y: 9.397889, z: 0}
-  - {x: -1.9002675, y: 7.5029902, z: 0}
-  - {x: -5.9199824, y: 7.0022597, z: 0}
-  - {x: -1.0514297, y: 5.9080954, z: 0}
-  - {x: -2.0052242, y: 4.2953386, z: 0}
+  m_Positions: []
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 1
@@ -521,15 +513,7 @@ LineRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Positions:
-  - {x: -4.2214165, y: 8.447951, z: 0}
-  - {x: -6.5439014, y: 7.635519, z: 0}
-  - {x: -5.9517865, y: 9.278243, z: 0}
-  - {x: -3.4894338, y: 9.397889, z: 0}
-  - {x: -1.9002675, y: 7.5029902, z: 0}
-  - {x: -5.9199824, y: 7.0022597, z: 0}
-  - {x: -1.0514297, y: 5.9080954, z: 0}
-  - {x: -2.0052242, y: 4.2953386, z: 0}
+  m_Positions: []
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 1
