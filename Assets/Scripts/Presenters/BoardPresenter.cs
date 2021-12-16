@@ -88,7 +88,7 @@ public class BoardPresenter : MonoBehaviour
             // Populate the new column.
             for (var y = 0; y < GameConfiguration.Height; y++)
             {
-                var row = BoardModel?.Spots[y];
+                var row = BoardModel?.Spots?[y];
                 if (row == null)
                     continue;
 
@@ -107,7 +107,11 @@ public class BoardPresenter : MonoBehaviour
 			// Generate new spots to fill in the remainder of the row.
             for (var y = newColumn.Count; y < GameConfiguration.Height; y++)
             {
-                BoardModel.Spots[y][x] = InstantiateSpotAt(x, y);
+                var row = BoardModel?.Spots?[y];
+                if (row == null)
+                    continue;
+
+                row[x] = InstantiateSpotAt(x, y);
                 numNewSpots++;
 		    }
 		}

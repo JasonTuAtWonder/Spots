@@ -45,7 +45,10 @@ public class SpotModel : MonoBehaviour
             // Update position using elapsed time.
             float t = Mathf.Clamp01(journey / duration);
             t = Easing.EaseOutBounce(t); // Make animation bouncy.
-            transform.position = Vector3.Lerp(from, to, t);
+            if (this != null)
+            { 
+			    transform.position = Vector3.Lerp(from, to, t);
+		    }
 
             // Complete one step of coroutine execution.
             yield return null;
