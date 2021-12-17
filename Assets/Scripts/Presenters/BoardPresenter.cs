@@ -500,7 +500,7 @@ public class BoardPresenter : MonoBehaviour
     Vector3 InitialSpotPosition(Vector2Int boardPosition)
     { 
 		var worldPos = Convert.BoardToWorldPosition(boardPosition);
-        worldPos += new Vector2(0f, 30f);
+        worldPos += new Vector2(0f, 60f);
         return worldPos;
     }
 }
