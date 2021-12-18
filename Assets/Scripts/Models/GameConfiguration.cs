@@ -15,16 +15,19 @@ public class GameConfiguration : ScriptableObject
     [Tooltip("Set of possible colors for spots.")]
     public Color[] Colors;
 
+    public bool IsTestMode;
+
     /// <summary>
     /// Choose a random color from GameConfiguration's set of possible colors.
     /// </summary>
     public Color RandomColor()
     {
         var len = Colors.Length;
-#if UNITY_EDITOR
-        // Temporarily choose 1 color only so I can get squares easily.
-        len = 2;
-#endif
+        if (IsTestMode)
+        { 
+			// Temporarily choose 1 color only so I can get squares easily.
+			len = 2;
+		}
 
         var i = Random.Range(0, len);
         return Colors[i];
