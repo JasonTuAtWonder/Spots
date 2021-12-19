@@ -8,6 +8,9 @@ public enum SoundEffect
     NOTE_2,
     NOTE_3,
     NOTE_4,
+    NOTE_5,
+    NOTE_6,
+    NOTE_7,
     CHIME,
 }
 
@@ -68,6 +71,24 @@ public class AudioService : MonoBehaviour
     /// </summary>
     public void PlayOneShot(SoundEffect soundEffect)
     {
-        PlayOneShot(GetAudioSource(soundEffect));
+        var index = (int)soundEffect;
+        if (5 <= index && index <= 7)
+        {
+            // Grab the AudioClip that is one octave down.
+            index -= 4;
+            var sfx = (SoundEffect)index;
+            var audioSource = GetAudioSource(sfx);
+
+            // Transpose it one octave up.
+            audioSource.pitch = 3;
+
+            // Then play the transposed AudioClip.
+			PlayOneShot(audioSource);
+		}
+        else
+        { 
+            // Otherwise, play the AudioClip as normal.
+			PlayOneShot(GetAudioSource(soundEffect));
+		}
     }
 }

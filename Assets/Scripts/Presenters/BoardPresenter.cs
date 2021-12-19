@@ -270,6 +270,12 @@ public class BoardPresenter : MonoBehaviour
 			AudioService.PlayOneShot(SoundEffect.NOTE_3);
         else if (spots.Count == 5)
 			AudioService.PlayOneShot(SoundEffect.NOTE_4);
+        else if (spots.Count == 6)
+			AudioService.PlayOneShot(SoundEffect.NOTE_5);
+        else if (spots.Count == 7)
+			AudioService.PlayOneShot(SoundEffect.NOTE_6);
+        else if (spots.Count == 8)
+			AudioService.PlayOneShot(SoundEffect.NOTE_7);
     }
 
     /// <summary>
