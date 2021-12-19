@@ -13,6 +13,9 @@ public class BoardPresenter : MonoBehaviour
     [NotNull] public Camera Camera;
     [NotNull] public PhysicMaterial BounceMaterial;
 
+    [Header("Services")]
+    [NotNull] public AudioService AudioService;
+
     void Awake()
     {
         InitializeBoard();
@@ -190,7 +193,7 @@ public class BoardPresenter : MonoBehaviour
 
             if (BoardModel.ConnectedSpots.Count == 0)
             {
-                BoardModel.ConnectedSpots.Add(spotModel);
+                AddConnectedSpot(spotModel);
             }
             else
             {
@@ -227,9 +230,9 @@ public class BoardPresenter : MonoBehaviour
                 { 
                     var isSquare = IsSquare(BoardModel.ConnectedSpots);
                     if (isSquare)
-                    {
                         return true;
-				    }
+                    else
+                        return false;
 				}
                 else if (foundIndex > -1)
                 {
@@ -240,7 +243,7 @@ public class BoardPresenter : MonoBehaviour
                 // Else, add the spot to the list of connected spots.
                 if (current == null)
                     throw new System.Exception("wtf, current is null");
-                BoardModel.ConnectedSpots.Add(current);
+                AddConnectedSpot(current);
             }
 
             // Break out of loop once we've processed a spot.
@@ -248,6 +251,25 @@ public class BoardPresenter : MonoBehaviour
 		}
 
         return false;
+    }
+
+    void AddConnectedSpot(SpotModel spotModel)
+    {
+        // Update connected spots.
+        BoardModel.ConnectedSpots.Add(spotModel);
+
+        // Play some audio feedback.
+        var spots = BoardModel.ConnectedSpots;
+        if (spots.Count == 1)
+			AudioService.PlayOneShot(SoundEffect.NOTE_0);
+        else if (spots.Count == 2)
+			AudioService.PlayOneShot(SoundEffect.NOTE_1);
+        else if (spots.Count == 3)
+			AudioService.PlayOneShot(SoundEffect.NOTE_2);
+        else if (spots.Count == 4)
+			AudioService.PlayOneShot(SoundEffect.NOTE_3);
+        else if (spots.Count == 5)
+			AudioService.PlayOneShot(SoundEffect.NOTE_4);
     }
 
     /// <summary>

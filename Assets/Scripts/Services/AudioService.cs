@@ -24,7 +24,6 @@ public class AudioService : MonoBehaviour
 
     AudioClip GetAudioClip(SoundEffect soundEffect)
     {
-		#pragma warning disable CS8524
         return soundEffect switch
         {
             SoundEffect.NOTE_0 => Notes[0],
@@ -33,8 +32,8 @@ public class AudioService : MonoBehaviour
             SoundEffect.NOTE_3 => Notes[3],
             SoundEffect.NOTE_4 => Notes[4],
             SoundEffect.CHIME => Chime,
+            _ => throw new System.Exception($"Unimplemented sound effect: {soundEffect}")
         };
-		#pragma warning restore CS8524
     }
 
     /// <summary>
@@ -61,5 +60,14 @@ public class AudioService : MonoBehaviour
     {
         audioSource.Play();
         Destroy(audioSource.gameObject, audioSource.clip.length);
+    }
+
+    /// <summary>
+    /// An alternative version of PlayOneShot in the case where you don't want to customize
+    /// the fields on an AudioSource, and just want to play the default AudioClip for a sound effect.
+    /// </summary>
+    public void PlayOneShot(SoundEffect soundEffect)
+    {
+        PlayOneShot(GetAudioSource(soundEffect));
     }
 }
