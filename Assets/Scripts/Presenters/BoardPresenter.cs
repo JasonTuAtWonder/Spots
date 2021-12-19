@@ -230,7 +230,13 @@ public class BoardPresenter : MonoBehaviour
                 { 
                     var isSquare = IsSquare(BoardModel.ConnectedSpots);
                     if (isSquare)
+                    {
+                        // Play some feedback.
+                        AudioService.PlayOneShot(SoundEffect.CHIME);
+
+                        // Then return true to indicate a square was detected.
                         return true;
+				    }
                     else
                         return false;
 				}
