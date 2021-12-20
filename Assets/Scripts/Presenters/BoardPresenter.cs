@@ -15,6 +15,7 @@ public class BoardPresenter : MonoBehaviour
 
     [Header("Services")]
     [NotNull] public AudioService AudioService;
+    [NotNull] public SpotPressFeedbackService SpotPressFeedbackService;
 
     void Awake()
     {
@@ -193,7 +194,7 @@ public class BoardPresenter : MonoBehaviour
 
             if (BoardModel.ConnectedSpots.Count == 0)
             {
-                AddConnectedSpot(spotModel);
+                AddConnectedSpotAt(spotModel, spotModel.transform.position);
             }
             else
             {
@@ -249,7 +250,7 @@ public class BoardPresenter : MonoBehaviour
                 // Else, add the spot to the list of connected spots.
                 if (current == null)
                     throw new System.Exception("wtf, current is null");
-                AddConnectedSpot(current);
+                AddConnectedSpotAt(current, spotModel.transform.position);
             }
 
             // Break out of loop once we've processed a spot.
@@ -259,7 +260,7 @@ public class BoardPresenter : MonoBehaviour
         return false;
     }
 
-    void AddConnectedSpot(SpotModel spotModel)
+    void AddConnectedSpotAt(SpotModel spotModel, Vector3 worldPos)
     {
         // Update connected spots.
         BoardModel.ConnectedSpots.Add(spotModel);
@@ -282,6 +283,9 @@ public class BoardPresenter : MonoBehaviour
 			AudioService.PlayOneShot(SoundEffect.NOTE_6);
         else if (spots.Count == 8)
 			AudioService.PlayOneShot(SoundEffect.NOTE_7);
+
+        // Instantiate some feedback.
+        SpotPressFeedbackService.InstantiateFeedback(worldPos, spotModel.Color);
     }
 
     /// <summary>
