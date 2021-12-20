@@ -3,6 +3,7 @@ Shader "Unlit/Spot Press Feedback"
     Properties
     {
         _DesiredColor ("Desired Color", Color) = (1, 1, 1, 1)
+        _Transparency ("Transparency", Float) = 1
     }
     SubShader
     {
@@ -35,6 +36,7 @@ Shader "Unlit/Spot Press Feedback"
             };
 
             float4 _DesiredColor;
+			float _Transparency;
 
             Interpolators vert (MeshData v)
             {
@@ -47,7 +49,7 @@ Shader "Unlit/Spot Press Feedback"
             fixed4 frag (Interpolators i) : SV_Target
             {
                 float len = length(float2(i.objectSpaceVerts.x, i.objectSpaceVerts.y));
-                return float4(_DesiredColor.xyz, len);
+                return float4(_DesiredColor.xyz, len * _Transparency);
             }
             ENDCG
         }
