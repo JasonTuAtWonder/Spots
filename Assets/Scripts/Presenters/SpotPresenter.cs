@@ -8,6 +8,7 @@ public class SpotPresenter : MonoBehaviour
 
     [Header("Views")]
     [NotNull] public MeshRenderer SpotView;
+    [NotNull] public GameObject Scaler;
 
     Material spotMaterial;
 

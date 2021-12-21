@@ -5,6 +5,7 @@ using System.Collections;
 public class SpotModel : MonoBehaviour
 {
     [NotNull] public GameConfiguration GameConfiguration;
+    [NotNull] public AnimationCurve DisconnectAnimation;
 
     public Color Color
     {
@@ -53,5 +54,39 @@ public class SpotModel : MonoBehaviour
             // Complete one step of coroutine execution.
             yield return null;
         }
+    }
+
+    /// <summary>
+    /// Kick off a "disconnect" animation, then destroy the GameObject once the animation is done.
+    /// </summary>
+    public IEnumerator AnimateDestroy(SpotPresenter spotPresenter, float duration)
+    {
+        // Animate the scale with bounce:
+
+        var from = Vector3.one;
+        var to = Vector3.zero;
+        var journey = 0f;
+
+        while (journey <= duration)
+        {
+            // Update elapsed time.
+            journey += Time.deltaTime;
+
+            // Update position using elapsed time.
+            float t = Mathf.Clamp01(journey / duration);
+            // t = Easing.EaseInOutElastic(t); // Make animation bouncy.
+            // Easing.GetPoint(t);
+            t = DisconnectAnimation.Evaluate(t);
+            if (this != null)
+                spotPresenter.Scaler.transform.localScale = Vector3.LerpUnclamped(from, to, t); // Update scale.
+
+            // Complete one step of coroutine execution.
+            yield return null;
+        }
+
+        // Once animation is complete, destroy the GameObject.
+        Destroy(spotPresenter.gameObject);
+
+        yield return null;
     }
 }

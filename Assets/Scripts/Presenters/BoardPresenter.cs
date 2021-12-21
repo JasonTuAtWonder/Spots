@@ -508,9 +508,13 @@ public class BoardPresenter : MonoBehaviour
                 // Clear that spot from the grid (leaving a `null` in its place).
                 var spotModel = BoardModel.Spots[y][x];
                 if (spotModel != null)
-                { 
-				    var toDestroy = BoardModel.Spots[y][x].gameObject;
-				    Destroy(toDestroy);
+                {
+                    // Old implementation:
+				    // var toDestroy = spotModel.gameObject;
+				    // Destroy(toDestroy);
+
+                    // New implementation:
+                    StartCoroutine(spotModel.AnimateDestroy(spotModel.GetComponent<SpotPresenter>(), .2f));
 				    BoardModel.Spots[y][x] = null;
 				}
 			}
