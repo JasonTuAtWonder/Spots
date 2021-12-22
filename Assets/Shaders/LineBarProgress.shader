@@ -2,7 +2,7 @@ Shader "Unlit/LineBarProgress"
 {
     Properties
     {
-		_BorderSize ("_BorderSize", Range(0, .5)) = .1
+		_BorderSize ("_BorderSize", Float) = .1
         _Health ("_Health", Range(0, 1)) = .2
         _Color ("_Color", Color) = (1, 0, 0, 1)
         _BackgroundColor ("_BackgroundColor", Color) = (0, 0, 0, 0)
