@@ -14,4 +14,5 @@ public enum ExecutionOrder
     SpotPresenter,
     BoardModel,
     BoardPresenter,
+    LineBarProgressPresenter, // Depends on the value of BoardPresenter's "IsSquare".
 }

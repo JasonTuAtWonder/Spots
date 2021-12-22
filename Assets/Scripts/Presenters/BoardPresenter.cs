@@ -17,6 +17,18 @@ public class BoardPresenter : MonoBehaviour
     [NotNull] public AudioService AudioService;
     [NotNull] public SpotPressFeedbackService SpotPressFeedbackService;
 
+    public bool DidSeeSquare
+    {
+        get;
+        private set;
+    }
+
+    bool DidSeeSquareLastFrame
+    {
+        get;
+        set;
+    }
+
     void Awake()
     {
         InitializeBoard();
@@ -26,9 +38,19 @@ public class BoardPresenter : MonoBehaviour
 
     void Update()
     {
-        var isSquare = UpdateConnectedSpots();
-        HandleDisconnects(isSquare);
+        DidSeeSquare = UpdateConnectedSpots();
+
+        if (DidSeeSquare && !DidSeeSquareLastFrame)
+        { 
+			// Play some feedback.
+			AudioService.PlayOneShot(SoundEffect.CHIME);
+		}
+
+        HandleDisconnects(DidSeeSquare);
+
         ReplenishSpots();
+
+        DidSeeSquareLastFrame = DidSeeSquare;
     }
 
     void KickOffAnimations()
@@ -232,9 +254,6 @@ public class BoardPresenter : MonoBehaviour
                     var isSquare = IsSquare(BoardModel.ConnectedSpots);
                     if (isSquare)
                     {
-                        // Play some feedback.
-                        AudioService.PlayOneShot(SoundEffect.CHIME);
-
                         // Then return true to indicate a square was detected.
                         return true;
 				    }
@@ -461,7 +480,8 @@ public class BoardPresenter : MonoBehaviour
 
     void HandleDisconnects(bool isSquare)
     {
-        if (!Input.GetMouseButtonUp(0) && !isSquare)
+        // If player did not release mouse button this frame, early return.
+        if (!Input.GetMouseButtonUp(0))
             return;
 
 		// Grab a copy of the list of connected dots.

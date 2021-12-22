@@ -9,6 +9,9 @@ public class LineBarProgressPresenter : MonoBehaviour
     [Header("Views")]
     [NotNull] public MeshRenderer MeshRenderer;
 
+    [Header("Presenters")]
+    [NotNull] public BoardPresenter BoardPresenter;
+
     Material mat;
     int lastConnectedSpotsCount = -1;
     Coroutine currentAnimation;
@@ -26,11 +29,41 @@ public class LineBarProgressPresenter : MonoBehaviour
     void Update()
     {
         UpdateColor();
-        UpdateProgress();
+        UpdateProgress(BoardPresenter.DidSeeSquare);
     }
 
-    void UpdateProgress()
+    void StopAnimation()
+    { 
+        if (currentAnimation != null)
+        { 
+			StopCoroutine(currentAnimation);
+			currentAnimation = null;
+		}
+    }
+
+    void UpdateProgress(bool didSeeSquare)
     {
+        if (didSeeSquare)
+        {
+            // Immediately set progress to full.
+            StopAnimation();
+            mat.SetFloat("_Health", 1);
+
+            // Set background color to a shade of the selected color.
+            var color = BoardModel.ConnectedSpots[0].Color;
+            var partiallyTransparentColor = new Color(color.r, color.g, color.b, .5f);
+            mat.SetColor("_BackgroundColor", partiallyTransparentColor);
+
+            // Early return.
+            return;
+		}
+        else
+        {
+            // Set background color to transparent.
+            var transparent = new Color(0, 0, 0, 0);
+            mat.SetColor("_BackgroundColor", transparent);
+		}
+
         var count = BoardModel.ConnectedSpots.Count;
         if (lastConnectedSpotsCount != count)
         {
@@ -38,11 +71,7 @@ public class LineBarProgressPresenter : MonoBehaviour
             lastConnectedSpotsCount = count;
 
             // Clear last animation.
-            if (currentAnimation != null)
-            { 
-                StopCoroutine(currentAnimation);
-                currentAnimation = null;
-		    }
+			StopAnimation();
 
             // Animate progress bar to desired progress value.
             currentAnimation = StartCoroutine(ToDesiredProgress(count * .1f, .1f));
