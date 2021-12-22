@@ -48,13 +48,20 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
-    "com.unity.recorder": {
-      "version": "3.0.3",
+    "com.unity.probuilder": {
+      "version": "4.5.2",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.timeline": "1.0.0"
+        "com.unity.settings-manager": "1.0.3"
       },
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.settings-manager": {
+      "version": "1.0.3",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
       "url": "https://packages.unity.com"
     },
     "com.unity.test-framework": {
