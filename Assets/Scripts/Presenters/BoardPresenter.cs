@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using System.Collections;
 
 [DefaultExecutionOrder((int)ExecutionOrder.BoardPresenter)]
 public class BoardPresenter : MonoBehaviour
@@ -33,7 +34,7 @@ public class BoardPresenter : MonoBehaviour
     {
         InitializeBoard();
         UpdateInitialSpotPositions();
-        KickOffAnimations();
+        StartCoroutine(StaggerDropAnimations(shouldStagger: true));
     }
 
     void Update()
@@ -53,16 +54,21 @@ public class BoardPresenter : MonoBehaviour
         DidSeeSquareLastFrame = DidSeeSquare;
     }
 
-    void KickOffAnimations()
+    IEnumerator StaggerDropAnimations(bool shouldStagger)
     { 
         for (var y = 0; y < GameConfiguration.Height; y++)
         { 
             for (var x = 0; x < GameConfiguration.Width; x++)
             {
                 var spotModel = BoardModel.Spots[y][x];
-                StartCoroutine(spotModel.AnimateToDesired(1f));
+                StartCoroutine(spotModel.AnimateToDesired(.5f));
 		    }
+
+		    if (shouldStagger)
+			    yield return new WaitForSeconds(.001f);
 		}
+
+        yield return null;
     }
 
     /// <summary>
@@ -111,7 +117,7 @@ public class BoardPresenter : MonoBehaviour
 
         if (numNewSpots > 0)
         {
-            KickOffAnimations();
+            StartCoroutine(StaggerDropAnimations(shouldStagger: false));
 		}
     }
 
