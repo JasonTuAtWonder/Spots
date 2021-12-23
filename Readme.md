@@ -6,4 +6,4 @@ https://spots-liart.vercel.app
 
 * incomplete sound implementation
 
-![project structure](./project_structure.png)
+![project structure](./Images/project_structure.png)
