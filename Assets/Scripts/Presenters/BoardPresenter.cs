@@ -270,6 +270,20 @@ public class BoardPresenter : MonoBehaviour
 			AudioService.PlayOneShot(SoundEffect.NOTE_6);
         else if (spots.Count == 8)
 			AudioService.PlayOneShot(SoundEffect.NOTE_7);
+        else if (spots.Count == 9)
+			AudioService.PlayOneShot(SoundEffect.NOTE_8);
+        else if (spots.Count == 10)
+			AudioService.PlayOneShot(SoundEffect.NOTE_9);
+        else if (spots.Count == 11)
+			AudioService.PlayOneShot(SoundEffect.NOTE_10);
+        else if (spots.Count == 12)
+			AudioService.PlayOneShot(SoundEffect.NOTE_11);
+        else if (spots.Count == 13)
+			AudioService.PlayOneShot(SoundEffect.NOTE_12);
+        else
+        { 
+            // Don't have sound, ah well.
+		}
 
         // Instantiate some feedback.
         SpotPressFeedbackService.InstantiateFeedback(worldPos, spotModel.Color);

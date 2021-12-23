@@ -11,6 +11,11 @@ public enum SoundEffect
     NOTE_5,
     NOTE_6,
     NOTE_7,
+    NOTE_8,
+    NOTE_9,
+    NOTE_10,
+    NOTE_11,
+    NOTE_12,
     CHIME,
 }
 
@@ -22,7 +27,8 @@ public class AudioService : MonoBehaviour
 
     void Awake()
     {
-        Assert.IsTrue(Notes.Length == 5);
+        // Safeguard to ensure we update the code when loading new sounds.
+        Assert.IsTrue(Notes.Length == 13);
     }
 
     AudioClip GetAudioClip(SoundEffect soundEffect)
@@ -34,6 +40,14 @@ public class AudioService : MonoBehaviour
             SoundEffect.NOTE_2 => Notes[2],
             SoundEffect.NOTE_3 => Notes[3],
             SoundEffect.NOTE_4 => Notes[4],
+            SoundEffect.NOTE_5 => Notes[5],
+            SoundEffect.NOTE_6 => Notes[6],
+            SoundEffect.NOTE_7 => Notes[7],
+            SoundEffect.NOTE_8 => Notes[8],
+            SoundEffect.NOTE_9 => Notes[9],
+            SoundEffect.NOTE_10 => Notes[10],
+            SoundEffect.NOTE_11 => Notes[11],
+            SoundEffect.NOTE_12 => Notes[12],
             SoundEffect.CHIME => Chime,
             _ => throw new System.Exception($"Unimplemented sound effect: {soundEffect}")
         };
@@ -71,6 +85,10 @@ public class AudioService : MonoBehaviour
     /// </summary>
     public void PlayOneShot(SoundEffect soundEffect)
     {
+		PlayOneShot(GetAudioSource(soundEffect));
+
+        // Unused hack to work around not having all the sound effects:
+#if false
         var index = (int)soundEffect;
         if (5 <= index && index <= 7)
         {
@@ -90,5 +108,6 @@ public class AudioService : MonoBehaviour
             // Otherwise, play the AudioClip as normal.
 			PlayOneShot(GetAudioSource(soundEffect));
 		}
+#endif
     }
 }
