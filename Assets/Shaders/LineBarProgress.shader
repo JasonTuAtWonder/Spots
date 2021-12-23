@@ -1,4 +1,7 @@
-Shader "Unlit/LineBarProgress"
+// A shader that draws a progress bar on the border of a quad.
+//
+// Used to provide feedback on the player's number of connected dots.
+Shader "Unlit/Line Bar Progress"
 {
     Properties
     {
@@ -91,6 +94,7 @@ Shader "Unlit/LineBarProgress"
 				);
                 float maskX = borderRightOrLeft && noBorderTop && noBorderBottom && healthMaskY;
 
+                // Fill the border with the border color, but otherwise fill in the background color.
 			    return _Color * (maskX || maskY) + _BackgroundColor * !(maskX || maskY);
             }
             ENDCG

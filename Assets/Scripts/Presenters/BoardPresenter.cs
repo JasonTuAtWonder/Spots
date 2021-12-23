@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
 
+/// <summary>
+/// TODO: This class needs work, along with ProgressBarFeedback.
+/// </summary>
 [DefaultExecutionOrder((int)ExecutionOrder.BoardPresenter)]
 public class BoardPresenter : MonoBehaviour
 {
@@ -18,18 +21,6 @@ public class BoardPresenter : MonoBehaviour
     [NotNull] public SpotPressFeedbackService SpotPressFeedbackService;
     [NotNull] public SpotPrefabService SpotPrefabService;
 
-    public bool DidSeeSquare
-    {
-        get;
-        private set;
-    }
-
-    bool DidSeeSquareLastFrame
-    {
-        get;
-        set;
-    }
-
     void Awake()
     {
         InitializeBoard();
@@ -38,19 +29,17 @@ public class BoardPresenter : MonoBehaviour
 
     void Update()
     {
-        DidSeeSquare = UpdateConnectedSpots();
+        BoardModel.IsClosedRectangle = UpdateConnectedSpots();
 
-        if (DidSeeSquare && !DidSeeSquareLastFrame)
+        if (BoardModel.IsClosedRectangleDetected)
         { 
 			// Play some feedback.
-			AudioService.PlayOneShot(SoundEffect.CHIME);
+			AudioService.PlayOneShot(AudioService.Chime);
 		}
 
-        HandleDisconnects(DidSeeSquare);
+        HandleDisconnects(BoardModel.IsClosedRectangle);
 
         ReplenishSpots();
-
-        DidSeeSquareLastFrame = DidSeeSquare;
     }
 
     IEnumerator StaggerDropAnimations(bool shouldStagger)
@@ -60,7 +49,7 @@ public class BoardPresenter : MonoBehaviour
             for (var x = 0; x < GameConfiguration.Width; x++)
             {
                 var spotPresenter = BoardModel.Spots[y][x];
-                StartCoroutine(spotPresenter.AnimateToDesired(.5f));
+                spotPresenter.AnimateFallAndBounce(.5f);
 		    }
 
 		    if (shouldStagger)
@@ -208,6 +197,7 @@ public class BoardPresenter : MonoBehaviour
                     return false;
 
                 // If the current spot is the same as any of the spots in the list,
+                // TODO: should be able to connect squares
                 if (foundIndex == 0)
                 { 
                     var isSquare = IsSquare(BoardModel.ConnectedSpots);
@@ -241,40 +231,18 @@ public class BoardPresenter : MonoBehaviour
     void PlayConnectFeedback(SpotPresenter spotPresenter, Vector3 worldPos)
     { 
         // Play some audio feedback.
-        var spots = BoardModel.ConnectedSpots;
-        if (spots.Count == 1)
-			AudioService.PlayOneShot(SoundEffect.NOTE_0);
-        else if (spots.Count == 2)
-			AudioService.PlayOneShot(SoundEffect.NOTE_1);
-        else if (spots.Count == 3)
-			AudioService.PlayOneShot(SoundEffect.NOTE_2);
-        else if (spots.Count == 4)
-			AudioService.PlayOneShot(SoundEffect.NOTE_3);
-        else if (spots.Count == 5)
-			AudioService.PlayOneShot(SoundEffect.NOTE_4);
-        else if (spots.Count == 6)
-			AudioService.PlayOneShot(SoundEffect.NOTE_5);
-        else if (spots.Count == 7)
-			AudioService.PlayOneShot(SoundEffect.NOTE_6);
-        else if (spots.Count == 8)
-			AudioService.PlayOneShot(SoundEffect.NOTE_7);
-        else if (spots.Count == 9)
-			AudioService.PlayOneShot(SoundEffect.NOTE_8);
-        else if (spots.Count == 10)
-			AudioService.PlayOneShot(SoundEffect.NOTE_9);
-        else if (spots.Count == 11)
-			AudioService.PlayOneShot(SoundEffect.NOTE_10);
-        else if (spots.Count == 12)
-			AudioService.PlayOneShot(SoundEffect.NOTE_11);
-        else if (spots.Count == 13)
-			AudioService.PlayOneShot(SoundEffect.NOTE_12);
+        var audioClip = AudioService.Notes[BoardModel.ConnectedSpots.Count - 1];
+        if (audioClip != null)
+        { 
+            AudioService.PlayOneShot(audioClip);
+		}
         else
         { 
-            // Don't have sound, ah well.
+            // Don't have sound, ah well – no-op.
 		}
 
         // Instantiate some feedback.
-        SpotPressFeedbackService.InstantiateFeedback(worldPos, spotPresenter.SpotModel.Color);
+        SpotPressFeedbackService.MakeFeedback(worldPos, spotPresenter.SpotModel.Color);
     }
 
     void AddConnectedSpotAt(SpotPresenter spotPresenter, Vector3 worldPos)
@@ -420,6 +388,8 @@ public class BoardPresenter : MonoBehaviour
 
     /// <summary>
     /// Check whether a list of spots contains a subsequence of spots in a square arrangement.
+    ///
+    /// TODO: Does not work with rectangles.
     /// </summary>
     public static bool IsSquare(List<SpotPresenter> spots)
     {
@@ -514,15 +484,15 @@ public class BoardPresenter : MonoBehaviour
                 var y = boardPos.y;
 
                 // Clear that spot from the grid (leaving a `null` in its place).
-                var spotModel = BoardModel.Spots[y][x];
-                if (spotModel != null)
+                var spotPresenter = BoardModel.Spots[y][x];
+                if (spotPresenter != null)
                 {
                     // Old implementation:
 				    // var toDestroy = spotModel.gameObject;
 				    // Destroy(toDestroy);
 
                     // New implementation:
-                    StartCoroutine(spotModel.AnimateDestroy(spotModel.GetComponent<SpotPresenter>(), .2f));
+                    spotPresenter.AnimateDisappear(.2f);
 				    BoardModel.Spots[y][x] = null;
 				}
 			}

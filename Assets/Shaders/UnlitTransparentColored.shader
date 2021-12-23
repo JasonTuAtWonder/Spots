@@ -1,6 +1,6 @@
-// From https://gist.github.com/keijiro/1681052
+// Copied from https://gist.github.com/keijiro/1681052.
 //
-// Same as "Unlit/Color", but supports transparency.
+// Same as the built-in "Unlit/Color" shader, but supports transparency.
 Shader "Unlit/Transparent Colored" {
     Properties {
         _Color ("Main Color", Color) = (1,1,1,1)

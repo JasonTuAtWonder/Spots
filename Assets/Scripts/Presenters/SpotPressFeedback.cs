@@ -37,14 +37,12 @@ public class SpotPressFeedback : MonoBehaviour
 
             // Update fields using elapsed time.
             float t = Mathf.Clamp01(journey / duration);
-            if (this != null)
-            { 
-                // Update scale.
-			    transform.localScale = Vector3.Lerp(from, to, t);
 
-                // Update transparency.
-                SetTransparency(1f - t);
-		    }
+			// Update scale.
+		    transform.localScale = Vector3.Lerp(from, to, t);
+
+			// Update transparency.
+			SetTransparency(1f - t);
 
             // Complete one step of coroutine execution.
             yield return null;

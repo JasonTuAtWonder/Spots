@@ -7,11 +7,13 @@ public static class Convert
     ///
     /// Example: (1, 2) in board space translates to (10, 20) in world space.
     ///
-    /// There is a difference between the two spaces mostly cause LineRenderer likes working with
-    /// larger line widths than 1. So this function allows us to customize the conversion between
-    /// the two coordinate spaces.
+    /// There is a difference between the two spaces mostly cause LineRenderer
+    /// likes working with  larger line widths than 1.
+    ///
+    /// So this function allows us to tweak the conversion between the two
+    /// coordinate spaces for optimal line rendering.
     /// </summary>
-    public static Vector2 BoardToWorldPosition(Vector2Int boardPos)
+    public static Vector2 BoardToWorldSpace(Vector2Int boardPos)
     {
         return boardPos * 10;
     }

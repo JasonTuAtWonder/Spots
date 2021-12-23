@@ -23,7 +23,7 @@ public class FingerIndicatorPresenter : MonoBehaviour
             // Convert mouse position to world space.
             var mouseWorldPos = Camera.ScreenToWorldPoint(Input.mousePosition);
 
-            // Position the finger indicator on top
+            // Position the finger indicator on top.
             FingerIndicator.transform.position = new Vector3(mouseWorldPos.x, mouseWorldPos.y, -1f);
 		}
     }

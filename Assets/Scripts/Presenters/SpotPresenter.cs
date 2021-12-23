@@ -9,7 +9,7 @@ public class SpotPresenter : MonoBehaviour
     [Header("Views")]
     [NotNull] public MeshRenderer SpotView;
     [NotNull] public GameObject Scaler;
-    public AnimationCurve DisconnectAnimation;
+    public AnimationCurve DisappearAnimation;
 
     Material spotMaterial;
 
@@ -26,12 +26,12 @@ public class SpotPresenter : MonoBehaviour
 
     public void SetWorldPosition()
     { 
-		var worldPos = Convert.BoardToWorldPosition(SpotModel.BoardPosition);
+		var worldPos = Convert.BoardToWorldSpace(SpotModel.BoardPosition);
         worldPos += new Vector2(0f, 60f);
         transform.position = worldPos;
     }
 
-    public IEnumerator AnimateToDesired(float duration)
+    private IEnumerator FallAndBounce(float duration)
     {
         var from = transform.position;
         var to = SpotModel.DesiredWorldPosition;
@@ -42,26 +42,28 @@ public class SpotPresenter : MonoBehaviour
             // Update elapsed time.
             journey += Time.deltaTime;
 
-            // Update position using elapsed time.
+            // Compute lerp value.
             float t = Mathf.Clamp01(journey / duration);
-            t = Easing.EaseOutBounce(t); // Make animation bouncy.
-            if (this != null)
-            { 
-			    transform.position = Vector3.Lerp(from, to, t);
-		    }
+            t = Easing.EaseOutBounce(t);
+
+            // Update position.
+		    transform.position = Vector3.Lerp(from, to, t);
 
             // Complete one step of coroutine execution.
             yield return null;
         }
     }
 
-    /// <summary>
-    /// Kick off a "disconnect" animation, then destroy the GameObject once the animation is done.
-    /// </summary>
-    public IEnumerator AnimateDestroy(SpotPresenter spotPresenter, float duration)
+    public void AnimateFallAndBounce(float duration)
     {
-        // Animate the scale with bounce:
+        StartCoroutine(FallAndBounce(duration));
+    }
 
+    /// <summary>
+    /// Kick off a "disappear" animation, then destroy the GameObject once the animation is done.
+    /// </summary>
+    private IEnumerator Disappear(float duration)
+    {
         var from = Vector3.one;
         var to = Vector3.zero;
         var journey = 0f;
@@ -71,21 +73,23 @@ public class SpotPresenter : MonoBehaviour
             // Update elapsed time.
             journey += Time.deltaTime;
 
-            // Update position using elapsed time.
+            // Compute lerp value.
             float t = Mathf.Clamp01(journey / duration);
-            // t = Easing.EaseInOutElastic(t); // Make animation bouncy.
-            // Easing.GetPoint(t);
-            t = DisconnectAnimation.Evaluate(t);
-            if (this != null)
-                spotPresenter.Scaler.transform.localScale = Vector3.LerpUnclamped(from, to, t); // Update scale.
+            t = DisappearAnimation.Evaluate(t);
+
+            // Update scale.
+			Scaler.transform.localScale = Vector3.LerpUnclamped(from, to, t);
 
             // Complete one step of coroutine execution.
             yield return null;
         }
 
         // Once animation is complete, destroy the GameObject.
-        Destroy(spotPresenter.gameObject);
+        Destroy(gameObject);
+    }
 
-        yield return null;
+    public void AnimateDisappear(float duration)
+    {
+        StartCoroutine(Disappear( duration));
     }
 }

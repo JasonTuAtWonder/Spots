@@ -248,7 +248,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GameConfiguration: {fileID: 11400000, guid: efde15777333a4eb7baacedce9c53aa4, type: 2}
-  SpotPressFeedback: {fileID: -2583529600907022554, guid: 057cb4e5b173348279700df2a70bb3da, type: 3}
+  SpotPressFeedbackPrefab: {fileID: -2583529600907022554, guid: 057cb4e5b173348279700df2a70bb3da, type: 3}
 --- !u!850595691 &326787360
 LightingSettings:
   m_ObjectHideFlags: 0
@@ -496,7 +496,6 @@ MonoBehaviour:
   GameConfiguration: {fileID: 11400000, guid: efde15777333a4eb7baacedce9c53aa4, type: 2}
   BoardModel: {fileID: 591714383}
   Camera: {fileID: 963194227}
-  BounceMaterial: {fileID: 13400000, guid: e8944e8847dba4cdeb59aca0daae529d, type: 2}
   AudioService: {fileID: 1549366135}
   SpotPressFeedbackService: {fileID: 219012312}
   SpotPrefabService: {fileID: 1694637789}
@@ -615,8 +614,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BoardModel: {fileID: 591714383}
   Camera: {fileID: 963194227}
-  ConnectingLines: {fileID: 519289250}
-  MousePointerLine: {fileID: 1626758431}
+  ConnectedDots: {fileID: 519289250}
+  LastDotToMousePointer: {fileID: 1626758431}
 --- !u!4 &1012181546
 Transform:
   m_ObjectHideFlags: 0
@@ -1064,4 +1063,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BoardModel: {fileID: 591714383}
   MeshRenderer: {fileID: 1792008709}
-  BoardPresenter: {fileID: 591714385}

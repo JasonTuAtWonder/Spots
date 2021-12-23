@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// Easing contains easing functions copied from easings.net.
+/// </summary>
 public static class Easing
 {
     public static float EaseOutBounce(float x)
@@ -40,7 +43,6 @@ public static class Easing
 	public static float EaseOutElastic(float x)
 	{ 
 		var c4 = (2f * Mathf.PI) / 3f;
-
 		return x == 0f
 		  ? 0f
 		  : x == 1f

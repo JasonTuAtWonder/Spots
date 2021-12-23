@@ -1,4 +1,4 @@
-Shader "Unlit/Spot Press Feedback"
+Shader "Unlit/Circle That Gets More Transparent Toward Center"
 {
     Properties
     {
@@ -16,7 +16,7 @@ Shader "Unlit/Spot Press Feedback"
 		}
         Pass
         {
-            ZWrite Off // Don't want transparent shaders to write to depth buffer, and possibly occlude objects behind it.
+            ZWrite Off // Don't want transparent shaders to write to depth buffer (which will occlude objects behind it).
             Blend SrcAlpha OneMinusSrcAlpha  // Enable alpha blending.
 
             CGPROGRAM

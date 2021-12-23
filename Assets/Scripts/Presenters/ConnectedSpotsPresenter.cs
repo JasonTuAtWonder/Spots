@@ -11,50 +11,20 @@ public class ConnectedSpotsPresenter : MonoBehaviour
 
     [Header("Views")]
     [NotNull] public Camera Camera;
-    [NotNull] public LineRenderer ConnectingLines;
-    [NotNull] public LineRenderer MousePointerLine;
+    [NotNull] public LineRenderer ConnectedDots;
+    [NotNull] public LineRenderer LastDotToMousePointer;
 
     void Awake()
     {
-        ConnectingLines.startWidth = 2f;
-        MousePointerLine.startWidth = 2f;
+        ConnectedDots.startWidth = 2f;
+        LastDotToMousePointer.startWidth = 2f;
     }
 
     void Update()
     {
-        UpdateConnectingLines();
-        UpdateMousePointerLine();
         UpdateLineColor();
-    }
-
-    void UpdateConnectingLines()
-    { 
-        var positions = new List<Vector3>();
-        var spots = BoardModel.ConnectedSpots;
-
-        foreach (var spot in spots)
-            positions.Add(spot.transform.position);
-
-        ConnectingLines.positionCount = positions.Count;
-	    ConnectingLines.SetPositions(positions.ToArray());
-    }
-
-    void UpdateMousePointerLine()
-    {
-        var positions = new List<Vector3>();
-        var spots = BoardModel.ConnectedSpots;
-
-        if (spots.Count > 0 && Input.GetMouseButton(0))
-        {
-            var last = spots[spots.Count - 1];
-            positions.Add(last.transform.position);
-
-            var mouseWorldPos = Camera.ScreenToWorldPoint(Input.mousePosition);
-            positions.Add(new Vector2(mouseWorldPos.x, mouseWorldPos.y));
-        }
-
-        MousePointerLine.positionCount = positions.Count;
-	    MousePointerLine.SetPositions(positions.ToArray());
+        UpdateConnectedDots();
+        UpdateLastDotToMousePointer();
     }
 
     void UpdateLineColor()
@@ -63,10 +33,49 @@ public class ConnectedSpotsPresenter : MonoBehaviour
         if (spots.Count > 0)
         {
             var spot = spots[0];
-            ConnectingLines.startColor = spot.SpotModel.Color;
-            ConnectingLines.endColor = spot.SpotModel.Color;
-            MousePointerLine.startColor = spot.SpotModel.Color;
-            MousePointerLine.endColor = spot.SpotModel.Color;
+            ConnectedDots.startColor = spot.SpotModel.Color;
+            ConnectedDots.endColor = spot.SpotModel.Color;
+            LastDotToMousePointer.startColor = spot.SpotModel.Color;
+            LastDotToMousePointer.endColor = spot.SpotModel.Color;
 		}
+    }
+
+    /// <summary>
+    /// Update the ConnectedDots LineRenderer to reflect the currently-connected dots' positions.
+    /// </summary>
+    void UpdateConnectedDots()
+    { 
+        var positions = new List<Vector3>();
+        var spots = BoardModel.ConnectedSpots;
+
+        foreach (var spot in spots)
+            positions.Add(spot.transform.position);
+
+        ConnectedDots.positionCount = positions.Count;
+	    ConnectedDots.SetPositions(positions.ToArray());
+    }
+
+    /// <summary>
+    /// Update the LastDotToMousePointer LineRenderer to reflect the current state of the left mouse button.
+    /// </summary>
+    void UpdateLastDotToMousePointer()
+    {
+        var positions = new List<Vector3>();
+        var spots = BoardModel.ConnectedSpots;
+
+        // If the left mouse button is held,
+        if (spots.Count > 0 && Input.GetMouseButton(0))
+        {
+            // Populate our list of positions, which we will set on the LastDotToMousePointer LineRenderer:
+
+            var last = spots[spots.Count - 1];
+            positions.Add(last.transform.position);
+
+            var mouseWorldPos = Camera.ScreenToWorldPoint(Input.mousePosition);
+            positions.Add(new Vector2(mouseWorldPos.x, mouseWorldPos.y));
+        }
+
+        LastDotToMousePointer.positionCount = positions.Count;
+	    LastDotToMousePointer.SetPositions(positions.ToArray());
     }
 }

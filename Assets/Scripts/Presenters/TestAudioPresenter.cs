@@ -14,46 +14,46 @@ public class TestAudioPresenter : MonoBehaviour
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.A))
-            AudioService.PlayOneShot(SoundEffect.NOTE_0);
+            AudioService.PlayOneShot(AudioService.Notes[0]);
 
         if (Input.GetKeyDown(KeyCode.W))
-            AudioService.PlayOneShot(SoundEffect.NOTE_1);
+            AudioService.PlayOneShot(AudioService.Notes[1]);
 
         if (Input.GetKeyDown(KeyCode.S))
-            AudioService.PlayOneShot(SoundEffect.NOTE_2);
+            AudioService.PlayOneShot(AudioService.Notes[2]);
 
         if (Input.GetKeyDown(KeyCode.E))
-            AudioService.PlayOneShot(SoundEffect.NOTE_3);
+            AudioService.PlayOneShot(AudioService.Notes[3]);
 
         if (Input.GetKeyDown(KeyCode.D))
-            AudioService.PlayOneShot(SoundEffect.NOTE_4);
+            AudioService.PlayOneShot(AudioService.Notes[4]);
 
         if (Input.GetKeyDown(KeyCode.R))
-            AudioService.PlayOneShot(SoundEffect.NOTE_5);
+            AudioService.PlayOneShot(AudioService.Notes[5]);
 
         if (Input.GetKeyDown(KeyCode.F))
-            AudioService.PlayOneShot(SoundEffect.NOTE_6);
+            AudioService.PlayOneShot(AudioService.Notes[6]);
 
         if (Input.GetKeyDown(KeyCode.T))
-            AudioService.PlayOneShot(SoundEffect.NOTE_7);
+            AudioService.PlayOneShot(AudioService.Notes[7]);
 
         if (Input.GetKeyDown(KeyCode.G))
-            AudioService.PlayOneShot(SoundEffect.NOTE_8);
+            AudioService.PlayOneShot(AudioService.Notes[8]);
 
         if (Input.GetKeyDown(KeyCode.Y))
-            AudioService.PlayOneShot(SoundEffect.NOTE_9);
+            AudioService.PlayOneShot(AudioService.Notes[9]);
 
         if (Input.GetKeyDown(KeyCode.H))
-            AudioService.PlayOneShot(SoundEffect.NOTE_10);
+            AudioService.PlayOneShot(AudioService.Notes[10]);
 
         if (Input.GetKeyDown(KeyCode.U))
-            AudioService.PlayOneShot(SoundEffect.NOTE_11);
+            AudioService.PlayOneShot(AudioService.Notes[11]);
 
         if (Input.GetKeyDown(KeyCode.J))
-            AudioService.PlayOneShot(SoundEffect.NOTE_12);
+            AudioService.PlayOneShot(AudioService.Notes[12]);
 
         if (Input.GetKeyDown(KeyCode.Z))
-            AudioService.PlayOneShot(SoundEffect.CHIME);
+            AudioService.PlayOneShot(AudioService.Chime);
     }
 #endif
 }

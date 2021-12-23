@@ -29,9 +29,43 @@ public class BoardViewModel : MonoBehaviour
         private set;
     }
 
+    /// <summary>
+    /// Whether a square (or rectangle) is being connected by the player.
+    /// </summary>
+    public bool IsClosedRectangle
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    /// Whether a square (or rectangle) was being connected by the player the previous frame.
+    /// </summary>
+    public bool WasClosedRectangle
+    {
+        get;
+        private set;
+    }
+
+    /// <summary>
+    /// Whether a square (or rectangle) was newly detected this frame.
+    /// </summary>
+    public bool IsClosedRectangleDetected
+    { 
+        get
+        {
+            return IsClosedRectangle && !WasClosedRectangle;
+		}
+    }
+
     void Awake()
     {
         ConnectedSpots = new List<SpotPresenter>();
         Spots = new List<List<SpotPresenter>>();
+    }
+
+    void LateUpdate()
+    {
+        WasClosedRectangle = IsClosedRectangle;
     }
 }

@@ -1,13 +1,16 @@
 /// <summary>
-/// ExecutionOrder defines the execution order of the Awake() callbacks within this project.
+/// ExecutionOrder defines the execution order of scripts.
 ///
-/// To ensure this execution order kicks in, apply a [DefaultExecutionOrder()] attribute
+/// You can read the enum from top to bottom, and rest assured the callbacks
+/// within each of the corresponding classes will execute in that order.
+///
+/// However, to ensure the execution order kicks in, apply a [DefaultExecutionOrder()] attribute
 /// to the top of the respective MonoBehaviour.
 ///
-/// For example, [DefaultExecutionOrder(ExecutionOrder.BoardModel)] for the BoardModel MonoBehaviour.
+/// For example, type out [DefaultExecutionOrder(ExecutionOrder.BoardModel)] above the BoardModel class.
 /// </summary>
 public enum ExecutionOrder
 {
     BoardPresenter,
-    LineBarProgressPresenter, // Depends on the value of BoardPresenter's "IsSquare".
+    ProgressBarFeedback, // Depends on the value of BoardModel's .IsClosedRectangle, which is updated by BoardPresenter.
 }

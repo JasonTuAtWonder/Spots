@@ -16,6 +16,9 @@ public enum Direction
     INVALID,
 }
 
+/// <summary>
+/// SquareMechanic contains game logic for detecting "squares" on the game board.
+/// </summary>
 public static class SquareMechanic
 {
     /// <summary>
