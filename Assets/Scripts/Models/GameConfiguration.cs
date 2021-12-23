@@ -12,9 +12,6 @@ public class GameConfiguration : ScriptableObject
     [Tooltip("Height of the board, in spots.")]
     public float Height;
 
-    [Tooltip("Prefab for a Spot.")]
-    [NotNull] public SpotModel SpotPrefab;
-
     [Tooltip("Set of possible colors for spots.")]
     [NotNull] public Color[] Colors;
 

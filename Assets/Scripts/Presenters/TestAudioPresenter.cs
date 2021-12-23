@@ -1,10 +1,16 @@
 using UnityEngine;
 
+/// <summary>
+/// TestAudioPresenter is used for testing sound effects.
+///
+/// It does nothing in the final build.
+/// </summary>
 public class TestAudioPresenter : MonoBehaviour
 {
     [Header("Services")]
     [NotNull] public AudioService AudioService;
 
+#if UNITY_EDITOR
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.A))
@@ -49,4 +55,5 @@ public class TestAudioPresenter : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Z))
             AudioService.PlayOneShot(SoundEffect.CHIME);
     }
+#endif
 }

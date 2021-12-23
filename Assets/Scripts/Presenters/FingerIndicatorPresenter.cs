@@ -1,5 +1,10 @@
 using UnityEngine;
 
+/// <summary>
+/// FingerIndicatorPresenter draws a semi-transparent circle
+/// where the player clicks, so that there's some visual feedback
+/// when recording videos of the game.
+/// </summary>
 public class FingerIndicatorPresenter : MonoBehaviour
 {
     [Header("Views")]

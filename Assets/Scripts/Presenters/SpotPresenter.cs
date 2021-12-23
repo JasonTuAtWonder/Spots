@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Collections;
 
-[DefaultExecutionOrder((int)ExecutionOrder.SpotPresenter)]
 public class SpotPresenter : MonoBehaviour
 {
     [Header("Models")]
@@ -35,7 +34,7 @@ public class SpotPresenter : MonoBehaviour
     public IEnumerator AnimateToDesired(float duration)
     {
         var from = transform.position;
-        var to = SpotModel.DesiredPosition;
+        var to = SpotModel.DesiredWorldPosition;
         var journey = 0f;
 
         while (journey <= duration)

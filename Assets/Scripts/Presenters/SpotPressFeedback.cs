@@ -1,11 +1,10 @@
 using UnityEngine;
 using System.Collections;
 
-public class SpotPressPresenter : MonoBehaviour
+public class SpotPressFeedback : MonoBehaviour
 {
     [Header("Views")]
     [NotNull] public MeshRenderer Renderer;
-    [NotNull] public GameObject Scaler;
 
     Material mat;
 

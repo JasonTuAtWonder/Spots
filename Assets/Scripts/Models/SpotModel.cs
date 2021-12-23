@@ -1,7 +1,5 @@
 using UnityEngine;
-using System.Collections;
 
-[DefaultExecutionOrder((int)ExecutionOrder.SpotModel)]
 public class SpotModel : MonoBehaviour
 {
     [NotNull] public GameConfiguration GameConfiguration;
@@ -23,7 +21,7 @@ public class SpotModel : MonoBehaviour
         set;
     }
 
-    public Vector2 DesiredPosition
+    public Vector2 DesiredWorldPosition
     {
         get
         {

@@ -12,14 +12,6 @@ public class BoardPresenter : MonoBehaviour
 
     [Header("Views")]
     [NotNull] public Camera Camera;
-    [NotNull] public PhysicMaterial BounceMaterial;
-
-    /// <summary>
-    /// The game board's 2D grid of spots.
-    ///
-    /// +x points to the right, and +y points up.
-    /// </summary>
-    List<List<SpotPresenter>> Spots = new List<List<SpotPresenter>>();
 
     [Header("Services")]
     [NotNull] public AudioService AudioService;
@@ -67,7 +59,7 @@ public class BoardPresenter : MonoBehaviour
         { 
             for (var x = 0; x < GameConfiguration.Width; x++)
             {
-                var spotPresenter = Spots[y][x];
+                var spotPresenter = BoardModel.Spots[y][x];
                 StartCoroutine(spotPresenter.AnimateToDesired(.5f));
 		    }
 
@@ -94,7 +86,7 @@ public class BoardPresenter : MonoBehaviour
             // Populate the new column.
             for (var y = 0; y < GameConfiguration.Height; y++)
             {
-                var row = Spots?[y];
+                var row = BoardModel.Spots?[y];
                 if (row == null)
                     continue;
 
@@ -106,14 +98,14 @@ public class BoardPresenter : MonoBehaviour
             // Finally, update the grid. (Cache locality isn't great. :P)
             for (var y = 0; y < newColumn.Count; y++)
             { 
-                Spots[y][x] = newColumn[y];
+                BoardModel.Spots[y][x] = newColumn[y];
                 newColumn[y].SpotModel.BoardPosition = new Vector2Int(x, y);
 		    }
 
 			// Generate new spots to fill in the remainder of the row.
             for (var y = newColumn.Count; y < GameConfiguration.Height; y++)
             {
-                var row = Spots?[y];
+                var row = BoardModel.Spots?[y];
                 if (row == null)
                     continue;
 
@@ -140,7 +132,7 @@ public class BoardPresenter : MonoBehaviour
                 row.Add(spot);
             }
 
-            Spots.Add(row);
+            BoardModel.Spots.Add(row);
         }
     }
 
@@ -499,7 +491,7 @@ public class BoardPresenter : MonoBehaviour
             { 
                 for (var x = 0; x < GameConfiguration.Width; x++)
                 {
-                    var spot = Spots[y][x];
+                    var spot = BoardModel.Spots[y][x];
                     if (spot.SpotModel.Color == colorMatch)
                     {
                         spotsToDestroy.Add(spot);
@@ -522,7 +514,7 @@ public class BoardPresenter : MonoBehaviour
                 var y = boardPos.y;
 
                 // Clear that spot from the grid (leaving a `null` in its place).
-                var spotModel = Spots[y][x];
+                var spotModel = BoardModel.Spots[y][x];
                 if (spotModel != null)
                 {
                     // Old implementation:
@@ -531,29 +523,9 @@ public class BoardPresenter : MonoBehaviour
 
                     // New implementation:
                     StartCoroutine(spotModel.AnimateDestroy(spotModel.GetComponent<SpotPresenter>(), .2f));
-				    Spots[y][x] = null;
+				    BoardModel.Spots[y][x] = null;
 				}
 			}
 		}
     }
-
-    /// <summary>
-    /// Update each spot's position based on its current board position. 
-    /// </summary>
-#if false
-    void __UpdateInitialSpotPositions()
-    { 
-        for (var y = 0; y < GameConfiguration.Height; y++)
-        { 
-            for (var x = 0; x < GameConfiguration.Width; x++)
-            {
-                var spot = BoardModel.Spots[y][x];
-                if (spot != null)
-                { 
-					spot.transform.position = InitialSpotPosition(new Vector2Int(x, y));
-				}
-		    }
-		}
-    }
-#endif
 }
