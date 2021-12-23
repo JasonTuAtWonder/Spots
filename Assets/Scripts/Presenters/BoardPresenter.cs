@@ -65,39 +65,6 @@ public class BoardPresenter : MonoBehaviour
 		}
     }
 
-    // Initialize the row colliders that facilitate a physics-based bounce animation for the spots.
-    void unused__InitializeColliders()
-    { 
-        for (var i = 0; i < GameConfiguration.Height; i++)
-        {
-            var obj = new GameObject();
-            var collider = obj.AddComponent<BoxCollider>();
-
-            // Set the layer.
-            obj.layer = Layer.Floor(i);
-
-            // Compute and set the collider's dimensions.
-            const float BUFFER_HEIGHT = 3.0f;
-            var boardDimensions = new Vector2Int((int)GameConfiguration.Width, i);
-            var worldDimensions = Convert.BoardToWorldPosition(boardDimensions);
-            worldDimensions.y += BUFFER_HEIGHT; // Add some buffer height to avoid the zero-height collider for i=0.
-            collider.size = new Vector3(worldDimensions.x, worldDimensions.y, 5.0f);
-
-            // Position the collider properly.
-            obj.transform.position = new Vector3(
-				worldDimensions.x * .5f - 5f,
-				worldDimensions.y * .5f - 2.5f - BUFFER_HEIGHT,
-			    0f
-			);
-
-            // Set the collider's game object name.
-            obj.name = $"Floor Collider {i}";
-
-            // Set the collider's PhysicMaterial.
-            collider.material = BounceMaterial;
-		}
-    }
-
     /// <summary>
     /// Update the board so that empty spots are filled by the spots above.
     /// </summary>
@@ -211,8 +178,6 @@ public class BoardPresenter : MonoBehaviour
                 continue;
 
             var spotModel = hitInfo.collider.GetComponent<SpotModel>();
-            if (spotModel == null)
-                throw new System.Exception("spotModel should not be null.");
 
             if (BoardModel.ConnectedSpots.Count == 0)
             {
@@ -257,19 +222,19 @@ public class BoardPresenter : MonoBehaviour
                         // Then return true to indicate a square was detected.
                         return true;
 				    }
-                    else
-                        return false;
 				}
-                else if (foundIndex > -1)
-                {
-                    // Then early return.
+
+                if (foundIndex > -1)
+                { 
+					var lastIndex = BoardModel.ConnectedSpots.Count - 1;
+                    if (foundIndex == lastIndex - 1)
+                        RemoveLastConnectedSpot(current, spotModel.transform.position);
+
                     return false;
 				}
 
-                // Else, add the spot to the list of connected spots.
-                if (current == null)
-                    throw new System.Exception("wtf, current is null");
-                AddConnectedSpotAt(current, spotModel.transform.position);
+				// Else, add the spot to the list of connected spots.
+				AddConnectedSpotAt(current, spotModel.transform.position);
             }
 
             // Break out of loop once we've processed a spot.
@@ -279,11 +244,8 @@ public class BoardPresenter : MonoBehaviour
         return false;
     }
 
-    void AddConnectedSpotAt(SpotModel spotModel, Vector3 worldPos)
-    {
-        // Update connected spots.
-        BoardModel.ConnectedSpots.Add(spotModel);
-
+    void PlayConnectFeedback(SpotModel spotModel, Vector3 worldPos)
+    { 
         // Play some audio feedback.
         var spots = BoardModel.ConnectedSpots;
         if (spots.Count == 1)
@@ -305,6 +267,24 @@ public class BoardPresenter : MonoBehaviour
 
         // Instantiate some feedback.
         SpotPressFeedbackService.InstantiateFeedback(worldPos, spotModel.Color);
+    }
+
+    void AddConnectedSpotAt(SpotModel spotModel, Vector3 worldPos)
+    {
+        // Update connected spots.
+        BoardModel.ConnectedSpots.Add(spotModel);
+
+        // And play some audiovisual feedback.
+        PlayConnectFeedback(spotModel, worldPos);
+    }
+
+    void RemoveLastConnectedSpot(SpotModel spotModel, Vector3 worldPos)
+    {
+        // Remove the last connected spot.
+        BoardModel.ConnectedSpots.RemoveAt(BoardModel.ConnectedSpots.Count - 1);
+
+        // And play some audiovisual feedback.
+        PlayConnectFeedback(spotModel, worldPos);
     }
 
     /// <summary>
