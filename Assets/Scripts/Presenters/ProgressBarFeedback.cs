@@ -2,6 +2,8 @@ using UnityEngine;
 using System.Collections;
 
 /// <summary>
+/// ProgressBarFeedback presents the progress bar,
+/// which provides feedback on the players' number of connected dots.
 /// </summary>
 [DefaultExecutionOrder((int)ExecutionOrder.ProgressBarFeedback)]
 public class ProgressBarFeedback : MonoBehaviour

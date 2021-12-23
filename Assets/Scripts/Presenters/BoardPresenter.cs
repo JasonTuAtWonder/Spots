@@ -487,10 +487,6 @@ public class BoardPresenter : MonoBehaviour
                 var spotPresenter = BoardModel.Spots[y][x];
                 if (spotPresenter != null)
                 {
-                    // Old implementation:
-				    // var toDestroy = spotModel.gameObject;
-				    // Destroy(toDestroy);
-
                     // New implementation:
                     spotPresenter.AnimateDisappear(.2f);
 				    BoardModel.Spots[y][x] = null;
