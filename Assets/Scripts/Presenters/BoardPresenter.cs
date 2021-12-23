@@ -8,15 +8,23 @@ public class BoardPresenter : MonoBehaviour
 {
     [Header("Models")]
     [NotNull] public GameConfiguration GameConfiguration;
-    [NotNull] public BoardModel BoardModel;
+    [NotNull] public BoardViewModel BoardModel;
 
     [Header("Views")]
     [NotNull] public Camera Camera;
     [NotNull] public PhysicMaterial BounceMaterial;
 
+    /// <summary>
+    /// The game board's 2D grid of spots.
+    ///
+    /// +x points to the right, and +y points up.
+    /// </summary>
+    List<List<SpotPresenter>> Spots = new List<List<SpotPresenter>>();
+
     [Header("Services")]
     [NotNull] public AudioService AudioService;
     [NotNull] public SpotPressFeedbackService SpotPressFeedbackService;
+    [NotNull] public SpotPrefabService SpotPrefabService;
 
     public bool DidSeeSquare
     {
@@ -33,7 +41,6 @@ public class BoardPresenter : MonoBehaviour
     void Awake()
     {
         InitializeBoard();
-        UpdateInitialSpotPositions();
         StartCoroutine(StaggerDropAnimations(shouldStagger: true));
     }
 
@@ -60,8 +67,8 @@ public class BoardPresenter : MonoBehaviour
         { 
             for (var x = 0; x < GameConfiguration.Width; x++)
             {
-                var spotModel = BoardModel.Spots[y][x];
-                StartCoroutine(spotModel.AnimateToDesired(.5f));
+                var spotPresenter = Spots[y][x];
+                StartCoroutine(spotPresenter.AnimateToDesired(.5f));
 		    }
 
 		    if (shouldStagger)
@@ -82,12 +89,12 @@ public class BoardPresenter : MonoBehaviour
         for (var x = 0; x < GameConfiguration.Width; x++)
         { 
 			// Create a new column containing the non-null nodes.
-			List<SpotModel> newColumn = new List<SpotModel>();
+			List<SpotPresenter> newColumn = new List<SpotPresenter>();
 
             // Populate the new column.
             for (var y = 0; y < GameConfiguration.Height; y++)
             {
-                var row = BoardModel?.Spots?[y];
+                var row = Spots?[y];
                 if (row == null)
                     continue;
 
@@ -99,18 +106,18 @@ public class BoardPresenter : MonoBehaviour
             // Finally, update the grid. (Cache locality isn't great. :P)
             for (var y = 0; y < newColumn.Count; y++)
             { 
-                BoardModel.Spots[y][x] = newColumn[y];
-                newColumn[y].BoardPosition = new Vector2Int(x, y);
+                Spots[y][x] = newColumn[y];
+                newColumn[y].SpotModel.BoardPosition = new Vector2Int(x, y);
 		    }
 
 			// Generate new spots to fill in the remainder of the row.
             for (var y = newColumn.Count; y < GameConfiguration.Height; y++)
             {
-                var row = BoardModel?.Spots?[y];
+                var row = Spots?[y];
                 if (row == null)
                     continue;
 
-                row[x] = InstantiateSpotAt(x, y);
+                row[x] = SpotPrefabService.MakeSpot(x, y);
                 numNewSpots++;
 		    }
 		}
@@ -121,30 +128,19 @@ public class BoardPresenter : MonoBehaviour
 		}
     }
 
-    /// <summary>
-    /// Instantiate Spot at board coordinates (x, y).
-    /// </summary>
-    SpotModel InstantiateSpotAt(int x, int y)
-    {
-        var spot = Instantiate<SpotModel>(GameConfiguration.SpotPrefab);
-        spot.BoardPosition = new Vector2Int(x, y);
-        spot.transform.position = InitialSpotPosition(spot.BoardPosition);
-        return spot;
-    }
-
     void InitializeBoard()
     {
         for (var y = 0; y < GameConfiguration.Height; y++)
         {
-            var row = new List<SpotModel>();
+            var row = new List<SpotPresenter>();
 
             for (var x = 0; x < GameConfiguration.Width; x++)
             {
-                var spot = InstantiateSpotAt(x, y);
+                var spot = SpotPrefabService.MakeSpot(x, y);
                 row.Add(spot);
             }
 
-            BoardModel.Spots.Add(row);
+            Spots.Add(row);
         }
     }
 
@@ -183,11 +179,11 @@ public class BoardPresenter : MonoBehaviour
             if (!isSpot)
                 continue;
 
-            var spotModel = hitInfo.collider.GetComponent<SpotModel>();
+            var spotPresenter = hitInfo.collider.GetComponent<SpotPresenter>();
 
             if (BoardModel.ConnectedSpots.Count == 0)
             {
-                AddConnectedSpotAt(spotModel, spotModel.transform.position);
+                AddConnectedSpotAt(spotPresenter, spotPresenter.transform.position);
             }
             else
             {
@@ -195,7 +191,7 @@ public class BoardPresenter : MonoBehaviour
                 var last = BoardModel.ConnectedSpots[BoardModel.ConnectedSpots.Count - 1];
 
                 // Grab the spot that is being clicked on.
-                var current = spotModel;
+                var current = spotPresenter;
                 if (current == null)
                     throw new System.Exception("wtf, current is null");
 
@@ -216,7 +212,7 @@ public class BoardPresenter : MonoBehaviour
                 }
 
                 // If the colors don't match, early return.
-                if (last.Color != current.Color)
+                if (last.SpotModel.Color != current.SpotModel.Color)
                     return false;
 
                 // If the current spot is the same as any of the spots in the list,
@@ -234,13 +230,13 @@ public class BoardPresenter : MonoBehaviour
                 { 
 					var lastIndex = BoardModel.ConnectedSpots.Count - 1;
                     if (foundIndex == lastIndex - 1)
-                        RemoveLastConnectedSpot(current, spotModel.transform.position);
+                        RemoveLastConnectedSpot(current, spotPresenter.transform.position);
 
                     return false;
 				}
 
 				// Else, add the spot to the list of connected spots.
-				AddConnectedSpotAt(current, spotModel.transform.position);
+				AddConnectedSpotAt(current, spotPresenter.transform.position);
             }
 
             // Break out of loop once we've processed a spot.
@@ -250,7 +246,7 @@ public class BoardPresenter : MonoBehaviour
         return false;
     }
 
-    void PlayConnectFeedback(SpotModel spotModel, Vector3 worldPos)
+    void PlayConnectFeedback(SpotPresenter spotPresenter, Vector3 worldPos)
     { 
         // Play some audio feedback.
         var spots = BoardModel.ConnectedSpots;
@@ -286,25 +282,25 @@ public class BoardPresenter : MonoBehaviour
 		}
 
         // Instantiate some feedback.
-        SpotPressFeedbackService.InstantiateFeedback(worldPos, spotModel.Color);
+        SpotPressFeedbackService.InstantiateFeedback(worldPos, spotPresenter.SpotModel.Color);
     }
 
-    void AddConnectedSpotAt(SpotModel spotModel, Vector3 worldPos)
+    void AddConnectedSpotAt(SpotPresenter spotPresenter, Vector3 worldPos)
     {
         // Update connected spots.
-        BoardModel.ConnectedSpots.Add(spotModel);
+        BoardModel.ConnectedSpots.Add(spotPresenter);
 
         // And play some audiovisual feedback.
-        PlayConnectFeedback(spotModel, worldPos);
+        PlayConnectFeedback(spotPresenter, worldPos);
     }
 
-    void RemoveLastConnectedSpot(SpotModel spotModel, Vector3 worldPos)
+    void RemoveLastConnectedSpot(SpotPresenter spotPresenter, Vector3 worldPos)
     {
         // Remove the last connected spot.
         BoardModel.ConnectedSpots.RemoveAt(BoardModel.ConnectedSpots.Count - 1);
 
         // And play some audiovisual feedback.
-        PlayConnectFeedback(spotModel, worldPos);
+        PlayConnectFeedback(spotPresenter, worldPos);
     }
 
     /// <summary>
@@ -325,15 +321,15 @@ public class BoardPresenter : MonoBehaviour
     ///
     /// Would satisfy the Direction.UP criteria.
     /// </summary>
-    private static bool LineFollowsDirection(List<SpotModel> lineOfSpots, Direction direction)
+    private static bool LineFollowsDirection(List<SpotPresenter> lineOfSpots, Direction direction)
     {
         if (direction == Direction.INVALID)
             return false;
 
 	    for (var i = 0; i < lineOfSpots.Count - 1; i++)
         {
-            var current = lineOfSpots[i].BoardPosition;
-            var next = lineOfSpots[i + 1].BoardPosition;
+            var current = lineOfSpots[i].SpotModel.BoardPosition;
+            var next = lineOfSpots[i + 1].SpotModel.BoardPosition;
 
             if (direction == Direction.UP)
             { 
@@ -369,10 +365,10 @@ public class BoardPresenter : MonoBehaviour
     ///
     /// If the 2 spots are not adjacent, then this method will return Direction.INVALID.
     /// </summary>
-    private static Direction GetDirection(SpotModel spot1, SpotModel spot2)
+    private static Direction GetDirection(SpotPresenter spot1, SpotPresenter spot2)
     {
-        var boardPos1 = spot1.BoardPosition;
-        var boardPos2 = spot2.BoardPosition;
+        var boardPos1 = spot1.SpotModel.BoardPosition;
+        var boardPos2 = spot2.SpotModel.BoardPosition;
 
         var xDiff = Mathf.Abs(boardPos1.x - boardPos2.x);
         var yDiff = Mathf.Abs(boardPos1.y - boardPos2.y);
@@ -433,7 +429,7 @@ public class BoardPresenter : MonoBehaviour
     /// <summary>
     /// Check whether a list of spots contains a subsequence of spots in a square arrangement.
     /// </summary>
-    public static bool IsSquare(List<SpotModel> spots)
+    public static bool IsSquare(List<SpotPresenter> spots)
     {
         if (!SquareMechanic.IsSquare(spots.Count))
         {
@@ -486,7 +482,7 @@ public class BoardPresenter : MonoBehaviour
 
 		// Grab a copy of the list of connected dots.
         var connectedSpots = BoardModel.ConnectedSpots;
-		var spotsToDestroy = new List<SpotModel>(connectedSpots);
+		var spotsToDestroy = new List<SpotPresenter>(connectedSpots);
 
 		// Then clear the connected dots from the board.
 		connectedSpots.Clear();
@@ -496,15 +492,15 @@ public class BoardPresenter : MonoBehaviour
             // Then also add all spots of the same color as the connected square dots:
 
             // Find the color of the connected square dots.
-            var colorMatch = spotsToDestroy[0].Color;
+            var colorMatch = spotsToDestroy[0].SpotModel.Color;
 
             // And add all dots of the same color to our spotsToDestroy.
             for (var y = 0; y < GameConfiguration.Height; y++)
             { 
                 for (var x = 0; x < GameConfiguration.Width; x++)
                 {
-                    var spot = BoardModel.Spots[y][x];
-                    if (spot.Color == colorMatch)
+                    var spot = Spots[y][x];
+                    if (spot.SpotModel.Color == colorMatch)
                     {
                         spotsToDestroy.Add(spot);
 				    }
@@ -521,12 +517,12 @@ public class BoardPresenter : MonoBehaviour
 			foreach (var spot in spotsToDestroy)
 			{
                 // Find the spot's position on the board.
-                var boardPos = spot.BoardPosition;
+                var boardPos = spot.SpotModel.BoardPosition;
                 var x = boardPos.x;
                 var y = boardPos.y;
 
                 // Clear that spot from the grid (leaving a `null` in its place).
-                var spotModel = BoardModel.Spots[y][x];
+                var spotModel = Spots[y][x];
                 if (spotModel != null)
                 {
                     // Old implementation:
@@ -535,7 +531,7 @@ public class BoardPresenter : MonoBehaviour
 
                     // New implementation:
                     StartCoroutine(spotModel.AnimateDestroy(spotModel.GetComponent<SpotPresenter>(), .2f));
-				    BoardModel.Spots[y][x] = null;
+				    Spots[y][x] = null;
 				}
 			}
 		}
@@ -544,7 +540,8 @@ public class BoardPresenter : MonoBehaviour
     /// <summary>
     /// Update each spot's position based on its current board position. 
     /// </summary>
-    void UpdateInitialSpotPositions()
+#if false
+    void __UpdateInitialSpotPositions()
     { 
         for (var y = 0; y < GameConfiguration.Height; y++)
         { 
@@ -558,11 +555,5 @@ public class BoardPresenter : MonoBehaviour
 		    }
 		}
     }
-
-    Vector3 InitialSpotPosition(Vector2Int boardPosition)
-    { 
-		var worldPos = Convert.BoardToWorldPosition(boardPosition);
-        worldPos += new Vector2(0f, 60f);
-        return worldPos;
-    }
+#endif
 }

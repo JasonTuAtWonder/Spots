@@ -7,7 +7,7 @@ using System.Collections.Generic;
 public class ConnectedSpotsPresenter : MonoBehaviour
 {
     [Header("Models")]
-    [NotNull] public BoardModel BoardModel;
+    [NotNull] public BoardViewModel BoardModel;
 
     [Header("Views")]
     [NotNull] public Camera Camera;
@@ -64,10 +64,10 @@ public class ConnectedSpotsPresenter : MonoBehaviour
         {
             var spot = spots[0];
             // Debug.Log(spot.Color);
-            ConnectingLines.startColor = spot.Color;
-            ConnectingLines.endColor = spot.Color;
-            MousePointerLine.startColor = spot.Color;
-            MousePointerLine.endColor = spot.Color;
+            ConnectingLines.startColor = spot.SpotModel.Color;
+            ConnectingLines.endColor = spot.SpotModel.Color;
+            MousePointerLine.startColor = spot.SpotModel.Color;
+            MousePointerLine.endColor = spot.SpotModel.Color;
 		}
     }
 }

@@ -1,10 +1,11 @@
 using UnityEngine;
 using System.Collections;
 
+[DefaultExecutionOrder((int)ExecutionOrder.LineBarProgressPresenter)]
 public class LineBarProgressPresenter : MonoBehaviour
 {
     [Header("Models")]
-    [NotNull] public BoardModel BoardModel;
+    [NotNull] public BoardViewModel BoardModel;
 
     [Header("Views")]
     [NotNull] public MeshRenderer MeshRenderer;
@@ -50,7 +51,7 @@ public class LineBarProgressPresenter : MonoBehaviour
             mat.SetFloat("_Health", 1);
 
             // Set background color to a shade of the selected color.
-            var color = BoardModel.ConnectedSpots[0].Color;
+            var color = BoardModel.ConnectedSpots[0].SpotModel.Color;
             var partiallyTransparentColor = new Color(color.r, color.g, color.b, .5f);
             mat.SetColor("_BackgroundColor", partiallyTransparentColor);
 
@@ -82,7 +83,7 @@ public class LineBarProgressPresenter : MonoBehaviour
     { 
         var count = BoardModel.ConnectedSpots.Count;
         if (count > 0)
-            SetColor(BoardModel.ConnectedSpots[0].Color);
+            SetColor(BoardModel.ConnectedSpots[0].SpotModel.Color);
     }
 
     void SetColor(Color color)

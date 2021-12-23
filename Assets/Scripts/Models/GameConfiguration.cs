@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// GameConfiguration provides options for configuring the game's variables.
+/// </summary>
 [CreateAssetMenu]
 public class GameConfiguration : ScriptableObject
 {
@@ -13,8 +16,9 @@ public class GameConfiguration : ScriptableObject
     [NotNull] public SpotModel SpotPrefab;
 
     [Tooltip("Set of possible colors for spots.")]
-    public Color[] Colors;
+    [NotNull] public Color[] Colors;
 
+    [Tooltip("Whether test mode is enabled. If enabled, the number of spot colors is restricted for ease of matching.")]
     public bool IsTestMode;
 
     /// <summary>
@@ -25,7 +29,7 @@ public class GameConfiguration : ScriptableObject
         var len = Colors.Length;
         if (IsTestMode)
         { 
-			// Temporarily choose 1 color only so I can get squares easily.
+			// Temporarily choose fewer colors so it's easier to test matching spots.
 			len = 2;
 		}
 
