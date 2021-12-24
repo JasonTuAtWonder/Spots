@@ -25,7 +25,7 @@ public class BoardPresenter : MonoBehaviour
 
     [Header("Services")]
     [NotNull] public AudioService AudioService;
-    [NotNull] public SpotPressFeedbackService SpotPressFeedbackService;
+    [NotNull] public CallAttentionToSpotService SpotPressFeedbackService;
     [NotNull] public SpotPrefabService SpotPrefabService;
 
     /// <summary>

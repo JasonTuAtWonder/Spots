@@ -92,7 +92,7 @@ GameObject:
   - component: {fileID: 4347969814584532360}
   - component: {fileID: -2583529600907022554}
   m_Layer: 0
-  m_Name: Spot Press Feedback
+  m_Name: Call Attention To Spot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -1,17 +1,17 @@
 using UnityEngine;
 
 /// <summary>
-/// SpotPressFeedbackService instantiates visual feedback for spot presses.
+/// CallAttentionToSpotService instantiates visual feedback for calling attention to individual spots.
 /// </summary>
-public class SpotPressFeedbackService : MonoBehaviour
+public class CallAttentionToSpotService : MonoBehaviour
 {
     [Header("Dependencies")]
     [NotNull] public GameConfiguration GameConfiguration;
-    [NotNull] public SpotPressFeedback SpotPressFeedbackPrefab;
+    [NotNull] public CallAttentionToSpotPresenter CallAttentionToSpotPrefab;
 
-    public SpotPressFeedback MakeFeedback(Vector3 position, Color color)
+    public CallAttentionToSpotPresenter MakeFeedback(Vector3 position, Color color)
     {
-        var obj = Instantiate(SpotPressFeedbackPrefab, position, Quaternion.identity);
+        var obj = Instantiate(CallAttentionToSpotPrefab, position, Quaternion.identity);
         obj.SetColor(color);
         return obj;
     }

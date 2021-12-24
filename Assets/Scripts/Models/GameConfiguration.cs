@@ -13,7 +13,7 @@ public class GameConfiguration : ScriptableObject
     public float Height;
 
     [Tooltip("Set of possible colors for spots.")]
-    [NotNull] public Color[] Colors;
+    public Color[] Colors;
 
     [Tooltip("Whether test mode is enabled. If enabled, the number of spot colors is restricted for ease of matching.")]
     public bool IsTestMode;

@@ -4,11 +4,11 @@ using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
-/// ProgressBarFeedback presents the progress bar,
+/// ProgressBarPresenter presents the progress bar,
 /// which provides feedback on the players' number of connected dots.
 /// </summary>
 [DefaultExecutionOrder((int)ExecutionOrder.ProgressBarFeedback)]
-public class ProgressBarFeedback : MonoBehaviour
+public class ProgressBarPresenter : MonoBehaviour
 {
     [Header("Models")]
     [NotNull] public BoardViewModel BoardModel;
@@ -89,7 +89,7 @@ public class ProgressBarFeedback : MonoBehaviour
 		}
     }
 
-    static void StopCurrentAnimation(ProgressBarFeedback self)
+    static void StopCurrentAnimation(ProgressBarPresenter self)
     {
         if (self.currentAnimation != null)
         {
@@ -101,7 +101,7 @@ public class ProgressBarFeedback : MonoBehaviour
     /// <summary>
     /// Update the progress indicator.
     /// </summary>
-    static IEnumerator UpdateProgress(ProgressBarFeedback self, Material progressBarMaterial, BoardViewModel boardModel)
+    static IEnumerator UpdateProgress(ProgressBarPresenter self, Material progressBarMaterial, BoardViewModel boardModel)
     {
         int lastConnectedSpotsCount = -1;
 
@@ -143,7 +143,7 @@ public class ProgressBarFeedback : MonoBehaviour
     /// <summary>
     /// Animate to the `desiredProgress` value over `duration` seconds.
     /// </summary>
-    static IEnumerator ToDesiredProgress(ProgressBarFeedback self, Material progressBarMaterial, float desiredProgress, float duration)
+    static IEnumerator ToDesiredProgress(ProgressBarPresenter self, Material progressBarMaterial, float desiredProgress, float duration)
     {
         var from = progressBarMaterial.GetFloat("_Health");
         var to = desiredProgress;

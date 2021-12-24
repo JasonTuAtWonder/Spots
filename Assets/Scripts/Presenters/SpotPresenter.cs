@@ -9,7 +9,7 @@ public class SpotPresenter : MonoBehaviour
     [Header("Views")]
     [NotNull] public MeshRenderer SpotView;
     [NotNull] public GameObject Scaler;
-    public AnimationCurve DisappearAnimationCurve;
+    [NotNull] public AnimationConfiguration SpotDisappear;
 
     Material spotMaterial;
 
@@ -93,7 +93,7 @@ public class SpotPresenter : MonoBehaviour
 
             // Compute lerp value.
             float t = Mathf.Clamp01(journey / duration);
-            t = DisappearAnimationCurve.Evaluate(t);
+            t = SpotDisappear.AnimationCurve.Evaluate(t);
 
             // Update scale.
 			Scaler.transform.localScale = Vector3.LerpUnclamped(from, to, t);
