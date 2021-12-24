@@ -11,3 +11,7 @@ https://spots-liart.vercel.app
 * note: does not allow rectangles
 
 * rather, you can connect rectangles, but nothing special will happen
+
+test cases:
+
+
