@@ -63,7 +63,6 @@ public static class SquareMechanic
         return global::Sign.POSITIVE;
     }
 
-
     /// <summary>
     /// Check whether a line of spots follows a certain direction,
     /// with each spot 1 board unit after the other.
@@ -137,10 +136,10 @@ public static class SquareMechanic
         if (xDiff + yDiff != 1)
             return Direction.INVALID;
 
-        if (SquareMechanic.Sign(boardPos2.x - boardPos1.x) == global::Sign.ZERO)
+        if (Sign(boardPos2.x - boardPos1.x) == global::Sign.ZERO)
         {
             // Then this is a vertical direction.
-            var ySign = SquareMechanic.Sign(boardPos2.y - boardPos1.y);
+            var ySign = Sign(boardPos2.y - boardPos1.y);
             if (ySign == global::Sign.POSITIVE)
                 return Direction.UP;
             else if (ySign == global::Sign.NEGATIVE)
@@ -149,7 +148,7 @@ public static class SquareMechanic
         else
         {
             // Then this is a horizontal direction.
-            var xSign = SquareMechanic.Sign(boardPos2.x - boardPos1.x);
+            var xSign = Sign(boardPos2.x - boardPos1.x);
             if (xSign == global::Sign.POSITIVE)
                 return Direction.RIGHT;
             else if (xSign == global::Sign.NEGATIVE)
@@ -159,6 +158,9 @@ public static class SquareMechanic
         return Direction.INVALID;
     }
 
+    /// <summary>
+    /// Flip a Direction enum.
+    /// </summary>
     private static Direction Flip(Direction dir)
     {
         if (dir == Direction.UP)
@@ -188,13 +190,13 @@ public static class SquareMechanic
     }
 
     /// <summary>
-    /// Check whether a list of spots contains a subsequence of spots in a square arrangement.
+    /// Check whether a list of spots is in a square arrangement.
     ///
-    /// TODO: Does not work with rectangles.
+    /// NOTE: This method only detects squares – not rectangles.
     /// </summary>
     public static bool IsSquare(List<SpotPresenter> spots)
     {
-        if (!SquareMechanic.IsSquare(spots.Count))
+        if (!IsSquare(spots.Count))
         {
             return false;
         }
