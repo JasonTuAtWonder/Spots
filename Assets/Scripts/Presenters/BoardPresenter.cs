@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
+using System;
 
 /// <summary>
 /// TODO: This class needs work, along with ProgressBarFeedback.
@@ -32,7 +33,7 @@ public class BoardPresenter : MonoBehaviour
 
     void Update()
     {
-        BoardModel.IsClosedRectangle = UpdateConnectedSpots();
+        BoardModel.IsClosedRectangle = OnSpotMove(UpdateConnectedSpots);
 
         if (BoardModel.IsClosedRectangleDetected)
         { 
@@ -140,6 +141,9 @@ public class BoardPresenter : MonoBehaviour
 		}
     }
 
+    /// <summary>
+    /// Initializes the BoardViewModel's game board.
+    /// </summary>
     void InitializeBoard()
     {
         for (var y = 0; y < GameConfiguration.Height; y++)
@@ -156,14 +160,22 @@ public class BoardPresenter : MonoBehaviour
         }
     }
 
-    static bool IsCardinallyAdjacent(Vector2 a, Vector2 b)
+    /// <summary>
+    /// Check whether 2 SpotPresenters are cardinally adjacent.
+    ///
+    /// That is, are they directly on top of each other? Or side-by-side?
+    /// </summary>
+    static bool IsCardinallyAdjacent(SpotPresenter spot1, SpotPresenter spot2)
     {
-        if (a.x == b.x && Mathf.Abs(a.y - b.y) == 10f)
+        var a = spot1.SpotModel.BoardPosition;
+        var b = spot2.SpotModel.BoardPosition;
+
+        if (a.x == b.x && Mathf.Abs(a.y - b.y) == 1)
         {
             return true;
         }
 
-        if (a.y == b.y && Mathf.Abs(a.x - b.x) == 10f)
+        if (a.y == b.y && Mathf.Abs(a.x - b.x) == 1)
         {
             return true;
         }
@@ -171,127 +183,146 @@ public class BoardPresenter : MonoBehaviour
         return false;
     }
 
+    /// <summary>
+    /// Handle the event when the player moves over a spot.
+    /// </summary>
+    /// <returns>Whether the player formed a closed rectangle of spots.</returns>
+    bool UpdateConnectedSpots(SpotPresenter newSpot)
+    {
+        // If there are no other connected spots,
+        if (BoardModel.ConnectedSpots.Count == 0)
+        {
+            // Connect the spot as the first spot, and early return.
+            ConnectSpot(newSpot);
+            return false;
+        }
+
+        // Grab the last connected spot.
+        var lastIndex = BoardModel.ConnectedSpots.Count - 1;
+	    var lastSpot = BoardModel.ConnectedSpots[lastIndex];
+
+	    // If the colors don't match, early return.
+	    if (!lastSpot.SpotModel.Color.Equals(newSpot.SpotModel.Color))
+			return false;
+
+	    // If the spots are not cardinally adjacent, early return.
+	    if (!IsCardinallyAdjacent(lastSpot, newSpot))
+			return false;
+
+        // If the spot isn't already connected, connect the spot and early return.
+	    var foundIndex = BoardModel.ConnectedSpots.FindIndex(spot => spot == newSpot);
+        if (foundIndex == -1)
+        {
+            ConnectSpot(newSpot);
+            return false;
+		}
+
+        // If the spot is the second-to-last-connected spot,
+        if (foundIndex > -1 && foundIndex == lastIndex - 1)
+        { 
+            // Remove the last connected spot and early return.
+		    RemoveLastConnectedSpot();
+            return false;
+		}
+
+        // If a loop was detected,
+        var isLoop = foundIndex == 0 && BoardModel.ConnectedSpots.Count >= 4;
+        if (isLoop)
+        { 
+            // Then compute whether the loop is square. (Do this before updating the ConnectedSpots list.)
+			var isSquare = IsSquare(BoardModel.ConnectedSpots);
+
+            // Connect the spot to close the loop.
+            ConnectSpot(newSpot);
+
+            // And return whether the loop is square.
+            return isSquare;
+		}
+
+        // Otherwise, there's a case that we haven't handled.
+        // Throw an exception when in development, but otherwise return false.
+#if UNITY_EDITOR
+        throw new System.Exception("Unhandled case.");
+#else
+		return false;
+#endif
+    }
 
     /// <summary>
-    /// Add to the BoardModel's ConnectedSpots given the current frame's state.
+    /// Run a specified event handler when the player mouses over a spot.
     /// </summary>
-    /// <returns>Whether a square was detected.</returns>
-    bool UpdateConnectedSpots()
+    /// <returns>Whether a closed rectangle was detected.</returns>
+    bool OnSpotMove(Func<SpotPresenter, bool> handleSpotMove)
     {
+        // If the player is not holding their left mouse button, early return.
         if (!Input.GetMouseButton(0))
             return false;
 
+        // Otherwise, cast a ray through the scene.
         var mouseWorldPos = Input.mousePosition;
         Ray ray = Camera.ScreenPointToRay(mouseWorldPos);
         var hits = Physics.RaycastAll(ray);
 
         foreach (var hitInfo in hits)
         {
+            // If the hit object is not a spot, skip this hit.
             var isSpot = hitInfo.collider.gameObject.CompareTag("Spot");
             if (!isSpot)
                 continue;
 
+            // Otherwise, the hit object is a spot. Handle the spot press event.
             var spotPresenter = hitInfo.collider.GetComponent<SpotPresenter>();
-
-            if (BoardModel.ConnectedSpots.Count == 0)
-            {
-                AddConnectedSpotAt(spotPresenter, spotPresenter.transform.position);
-            }
-            else
-            {
-                // Grab the last connected spot.
-                var last = BoardModel.ConnectedSpots[BoardModel.ConnectedSpots.Count - 1];
-
-                // Grab the spot that is being clicked on.
-                var current = spotPresenter;
-                if (current == null)
-                    throw new System.Exception("wtf, current is null");
-
-                // Grab the board position of both last and current spots.
-                if (last == null)
-                    throw new System.Exception("wtf");
-                var lastBoardPos = last.transform.position;
-                var currentBoardPos = current.transform.position;
-
-                // Compute whether the current spot is the same as any of the spots already in the list.
-                // var found = BoardModel.ConnectedSpots.Find(spot => spot == current);
-                var foundIndex = BoardModel.ConnectedSpots.FindIndex(spot => spot == current);
-
-                // If the spots are not cardinally adjacent, early return.
-                if (!IsCardinallyAdjacent(lastBoardPos, currentBoardPos))
-                {
-                    return false;
-                }
-
-                // If the colors don't match, early return.
-                if (last.SpotModel.Color != current.SpotModel.Color)
-                    return false;
-
-                // If the current spot is the same as any of the spots in the list,
-                // TODO: should be able to connect squares
-                if (foundIndex == 0)
-                { 
-                    var isSquare = IsSquare(BoardModel.ConnectedSpots);
-                    if (isSquare)
-                    {
-                        // Then return true to indicate a square was detected.
-                        return true;
-				    }
-				}
-
-                if (foundIndex > -1)
-                { 
-					var lastIndex = BoardModel.ConnectedSpots.Count - 1;
-                    if (foundIndex == lastIndex - 1)
-                        RemoveLastConnectedSpot(current, spotPresenter.transform.position);
-
-                    return false;
-				}
-
-				// Else, add the spot to the list of connected spots.
-				AddConnectedSpotAt(current, spotPresenter.transform.position);
-            }
-
-            // Break out of loop once we've processed a spot.
-            break;
+            var isClosedRectangle = handleSpotMove(spotPresenter);
+            return isClosedRectangle;
 		}
 
+        // If no spots were pressed, then return false: a closed rectangle was not detected.
         return false;
     }
 
-    void PlayConnectFeedback(SpotPresenter spotPresenter, Vector3 worldPos)
+    /// <summary>
+    /// Provide some feedback to the player when they connect a new spot.
+    /// </summary>
+    void PlayConnectSpotFeedback(SpotPresenter spotPresenter)
     { 
-        // Play some audio feedback.
+        // Play audio feedback.
         var audioClip = AudioService.Notes[BoardModel.ConnectedSpots.Count - 1];
         if (audioClip != null)
-        { 
             AudioService.PlayOneShot(audioClip);
-		}
         else
-        { 
             // Don't have sound, ah well – no-op.
-		}
 
-        // Instantiate some feedback.
-        SpotPressFeedbackService.MakeFeedback(worldPos, spotPresenter.SpotModel.Color);
+	    // Play visual feedback.
+        SpotPressFeedbackService.MakeFeedback(spotPresenter.transform.position, spotPresenter.SpotModel.Color);
     }
 
-    void AddConnectedSpotAt(SpotPresenter spotPresenter, Vector3 worldPos)
+    /// <summary>
+    /// Connect a new spot.
+    /// </summary>
+    void ConnectSpot(SpotPresenter spotPresenter)
     {
         // Update connected spots.
         BoardModel.ConnectedSpots.Add(spotPresenter);
 
         // And play some audiovisual feedback.
-        PlayConnectFeedback(spotPresenter, worldPos);
+        PlayConnectSpotFeedback(spotPresenter);
     }
 
-    void RemoveLastConnectedSpot(SpotPresenter spotPresenter, Vector3 worldPos)
+    /// <summary>
+    /// Disconnect the last connected spot.
+    ///
+    /// This occurs when the player mouses over the connected spot *prior* to the last connected spot.
+    /// </summary>
+    void RemoveLastConnectedSpot()
     {
+        var lastIndex = BoardModel.ConnectedSpots.Count - 1;
+        var secondToLast = BoardModel.ConnectedSpots[lastIndex - 1];
+
         // Remove the last connected spot.
-        BoardModel.ConnectedSpots.RemoveAt(BoardModel.ConnectedSpots.Count - 1);
+        BoardModel.ConnectedSpots.RemoveAt(lastIndex);
 
         // And play some audiovisual feedback.
-        PlayConnectFeedback(spotPresenter, worldPos);
+        PlayConnectSpotFeedback(secondToLast);
     }
 
     /// <summary>
