@@ -15,7 +15,7 @@ public class GameConfiguration : ScriptableObject
     [Tooltip("Set of possible colors for spots.")]
     public Color[] Colors;
 
-    [Tooltip("Whether test mode is enabled. If enabled, the number of spot colors is restricted for ease of matching.")]
+    [Tooltip("Whether test mode is enabled. If enabled, the number of spot colors is restricted for ease of matching. Note that this only applies in the Unity Editor.")]
     public bool IsTestMode;
 
     Color[] ShuffledColors;
@@ -58,11 +58,13 @@ public class GameConfiguration : ScriptableObject
     public Color RandomColor()
     {
         var len = ShuffledColors.Length;
+#if UNITY_EDITOR
         if (IsTestMode)
         {
             // Temporarily choose fewer colors so it's easier to test matching spots.
             len = 2;
 		}
+#endif
 
         var i = Random.Range(0, len);
         return ShuffledColors[i];
