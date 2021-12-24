@@ -39,22 +39,23 @@ public class BoardPresenter : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButton(0))
-        { 
-			OnSpotMove(UpdateConnectedSpots);
-		}
+		var didUpdateConnectedSpots = OnSpotMove(UpdateConnectedSpots);
 
         BoardModel.IsClosedSquare = SquareMechanic.IsSquareLoop(BoardModel.ConnectedSpots);
 	    Debug.Log("BoardModel.IsClosedSquare: " + BoardModel.IsClosedSquare + " " + BoardModel.ConnectedSpots.Count);
 
-        if (BoardModel.DetectedClosedSquare)
+	    if (didUpdateConnectedSpots)
         { 
-            // Play some audio feedback.
-			AudioService.PlayOneShot(AudioService.Chime);
-
-            // For all the circles of the same color, play some visual feedback to indicate they will be cleared.
-            var color = BoardModel.ConnectedSpots[0].SpotModel.Color;
-            HighlightAllSpotsWith(color);
+            if (BoardModel.DetectedClosedSquare)
+            {
+                PlaySquareDetectedFeedback();
+		    }
+            else
+            {
+                var spots = BoardModel.ConnectedSpots;
+                var last = spots[spots.Count - 1];
+                PlayConnectSpotFeedback(last);
+		    }
 		}
 
         if (Input.GetMouseButtonUp(0))
@@ -174,14 +175,15 @@ public class BoardPresenter : MonoBehaviour
     /// <summary>
     /// Handle the event when the player moves over a spot.
     /// </summary>
-    void UpdateConnectedSpots(SpotPresenter newSpot)
+    /// <returns>Whether the list of connected spots was updated.</returns>
+    bool UpdateConnectedSpots(SpotPresenter newSpot)
     {
         // If there are no other connected spots,
         if (BoardModel.ConnectedSpots.Count == 0)
         {
             // Connect the spot as the first spot, and early return.
-            ConnectSpot(newSpot, false);
-            return;
+            ConnectSpot(newSpot);
+            return true;
         }
 
         // Grab the last connected spot.
@@ -190,18 +192,18 @@ public class BoardPresenter : MonoBehaviour
 
 	    // If the colors don't match, early return.
 	    if (!lastSpot.SpotModel.Color.Equals(newSpot.SpotModel.Color))
-			return;
+			return false;
 
 	    // If the spots are not cardinally adjacent, early return.
 	    if (!SquareMechanic.IsCardinallyAdjacent(lastSpot, newSpot))
-			return;
+			return false;
 
         // If the spot isn't already connected, connect the spot and early return.
 	    var foundIndex = BoardModel.ConnectedSpots.FindIndex(spot => spot == newSpot);
         if (foundIndex == -1)
         {
-            ConnectSpot(newSpot, false);
-            return;
+            ConnectSpot(newSpot);
+            return true;
 		}
 
         // If the spot is the second-to-last-connected spot,
@@ -209,7 +211,7 @@ public class BoardPresenter : MonoBehaviour
         { 
             // Remove the last connected spot and early return.
 		    RemoveLastConnectedSpot();
-            return;
+            return true;
 		}
 
         // If a loop was detected,
@@ -221,17 +223,23 @@ public class BoardPresenter : MonoBehaviour
             if (spots[spots.Count - 1] != newSpot)
             { 
 			    // Connect the spot to close the loop.
-			    ConnectSpot(newSpot, true);
+			    ConnectSpot(newSpot);
+                return true;
 		    }
 		}
+
+        return false;
     }
 
     /// <summary>
     /// Run a specified event handler when the player mouses over a spot.
     /// </summary>
-    /// <returns>Whether a closed square was detected.</returns>
-    void OnSpotMove(Action<SpotPresenter> handleSpotMove)
+    /// <returns>Whether the list of connected spots was updated.</returns>
+    bool OnSpotMove(Func<SpotPresenter, bool> handleSpotMove)
     {
+        if (!Input.GetMouseButton(0))
+            return false;
+
         // Cast a ray through the scene.
         var mouseWorldPos = Input.mousePosition;
         Ray ray = Camera.ScreenPointToRay(mouseWorldPos);
@@ -246,22 +254,17 @@ public class BoardPresenter : MonoBehaviour
 
             // Otherwise, the hit object is a spot. Handle the spot press event.
             var spotPresenter = hitInfo.collider.GetComponent<SpotPresenter>();
-            handleSpotMove(spotPresenter);
-            return;
+            return handleSpotMove(spotPresenter);
 		}
+
+        return false;
     }
 
     /// <summary>
     /// Provide some feedback to the player when they connect a new spot.
     /// </summary>
-    void PlayConnectSpotFeedback(SpotPresenter spotPresenter, bool isSquareLoop)
+    void PlayConnectSpotFeedback(SpotPresenter spotPresenter)
     { 
-        // If a square loop was detected, do not play feedback – we're handling that elsewhere.
-        if (isSquareLoop)
-        {
-            return;
-		}
-
         // Play audio feedback.
         var audioClip = AudioService.Notes[BoardModel.ConnectedSpots.Count - 1];
         if (audioClip != null)
@@ -279,16 +282,23 @@ public class BoardPresenter : MonoBehaviour
         SpotPressFeedbackService.MakeFeedback(feedbackPos, spotPresenter.SpotModel.Color);
     }
 
+    void PlaySquareDetectedFeedback()
+    { 
+	    // Play some audio feedback.
+		AudioService.PlayOneShot(AudioService.Chime);
+
+	    // For all the circles of the same color, play some visual feedback to indicate they will be cleared.
+	    var color = BoardModel.ConnectedSpots[0].SpotModel.Color;
+	    HighlightAllSpotsWith(color);
+    }
+
     /// <summary>
     /// Connect a new spot.
     /// </summary>
-    void ConnectSpot(SpotPresenter spotPresenter, bool isSquareLoop)
+    void ConnectSpot(SpotPresenter spotPresenter)
     {
         // Update connected spots.
         BoardModel.ConnectedSpots.Add(spotPresenter);
-
-        // And play some audiovisual feedback.
-        PlayConnectSpotFeedback(spotPresenter, isSquareLoop);
     }
 
     /// <summary>
@@ -303,9 +313,6 @@ public class BoardPresenter : MonoBehaviour
 
         // Remove the last connected spot.
         BoardModel.ConnectedSpots.RemoveAt(lastIndex);
-
-        // And play some audiovisual feedback.
-        PlayConnectSpotFeedback(secondToLast, false);
     }
 
     /// <summary>
