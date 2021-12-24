@@ -344,10 +344,10 @@ public class BoardPresenter : MonoBehaviour
 				    }
 				}
 		    }
-
-            // Then, because there might be dupes in spotsToDestroy, we de-dupe.
-            spotsToDestroy = spotsToDestroy.Distinct().ToList();
 		}
+
+	    // Then, because there might be dupes in spotsToDestroy, we de-dupe.
+	    spotsToDestroy = spotsToDestroy.Distinct().ToList();
 
         // Perform a "disconnect" only if there are 2 or more connected spots.
         if (spotsToDestroy.Count >= 2)
