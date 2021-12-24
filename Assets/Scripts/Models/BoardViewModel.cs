@@ -7,6 +7,7 @@ using System.Collections.Generic;
 /// Because this class holds references to SpotPresenter objects,
 /// it is named "ViewModel" to indicate that it holds view-level data in addition to model-level data.
 /// </summary>
+[DefaultExecutionOrder((int)ExecutionOrder.BoardViewModel)]
 public class BoardViewModel : MonoBehaviour
 {
     /// <summary>
@@ -58,7 +59,10 @@ public class BoardViewModel : MonoBehaviour
 		}
     }
 
-    void Awake()
+    /// <summary>
+    /// Note: OnEnable() is used instead of Awake() so the callback is called after domain reload.
+    /// </summary>
+    void OnEnable()
     {
         ConnectedSpots = new List<SpotPresenter>();
         Spots = new List<List<SpotPresenter>>();

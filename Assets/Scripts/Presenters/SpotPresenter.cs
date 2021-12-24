@@ -13,10 +13,21 @@ public class SpotPresenter : MonoBehaviour
 
     Material spotMaterial;
 
-    void Awake()
+    /// <summary>
+    /// Note: OnEnable() is used instead of Awake() so the callback is called after domain reload.
+    /// </summary>
+    void OnEnable()
     {
         spotMaterial = SpotView.material;
         SetColor();
+    }
+
+    /// <summary>
+    /// Destroy the GameObject so it doesn't appear after domain reload.
+    /// </summary>
+    void OnDisable()
+    {
+        Destroy(gameObject);
     }
 
     void SetColor()
@@ -27,15 +38,22 @@ public class SpotPresenter : MonoBehaviour
     public void SetWorldPosition()
     { 
 		var worldPos = Convert.BoardToWorldSpace(SpotModel.BoardPosition);
-        worldPos += new Vector2(0f, 60f);
+        worldPos += new Vector2(0f, 100f);
         transform.position = worldPos;
     }
 
     private IEnumerator FallAndBounce(float duration)
     {
-        var from = transform.position;
+        var pos = transform.position;
+        var from = new Vector2(pos.x, pos.y);
         var to = SpotModel.DesiredWorldPosition;
         var journey = 0f;
+
+        // Do not run animation if we are already at the desired position.
+        //
+        // Apparently '==' tests for approximate equality (https://docs.unity3d.com/ScriptReference/Vector3-operator_eq.html):
+        if (from == to)
+            yield break;
 
         while (journey <= duration)
         {

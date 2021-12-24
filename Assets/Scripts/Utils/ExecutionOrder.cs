@@ -11,6 +11,7 @@
 /// </summary>
 public enum ExecutionOrder
 {
-    BoardPresenter,
+    BoardViewModel,
+    BoardPresenter, // Depends on BoardViewModel being initialized.
     ProgressBarFeedback, // Depends on the value of BoardModel's .IsClosedRectangle, which is updated by BoardPresenter.
 }

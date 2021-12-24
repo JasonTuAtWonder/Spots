@@ -21,10 +21,13 @@ public class BoardPresenter : MonoBehaviour
     [NotNull] public SpotPressFeedbackService SpotPressFeedbackService;
     [NotNull] public SpotPrefabService SpotPrefabService;
 
-    void Awake()
+    /// <summary>
+    /// Note: OnEnable() is used instead of Awake() so the callback is called after domain reload.
+    /// </summary>
+    void OnEnable()
     {
         InitializeBoard();
-        StartCoroutine(StaggerDropAnimations(shouldStagger: true));
+        StartCoroutine(DropSpotsFromAbove());
     }
 
     void Update()
@@ -33,16 +36,47 @@ public class BoardPresenter : MonoBehaviour
 
         if (BoardModel.IsClosedRectangleDetected)
         { 
-			// Play some feedback.
+            // Play some audio feedback.
 			AudioService.PlayOneShot(AudioService.Chime);
+
+            // For all the circles of the same color, play some visual feedback to indicate they will be cleared.
+            var color = BoardModel.ConnectedSpots[0].SpotModel.Color;
+            HighlightAllSpotsWith(color);
 		}
 
         HandleDisconnects(BoardModel.IsClosedRectangle);
 
-        ReplenishSpots();
+        if (Input.GetMouseButtonUp(0))
+        { 
+			ReplenishSpots();
+		}
     }
 
-    IEnumerator StaggerDropAnimations(bool shouldStagger)
+    /// <summary>
+    /// Highlight all spots with a given `color`.
+    /// </summary>
+    void HighlightAllSpotsWith(Color color)
+    { 
+        for (var y = 0; y < GameConfiguration.Height; y++)
+        { 
+            for (var x = 0; x < GameConfiguration.Width; x++)
+            {
+                var spot = BoardModel.Spots[y][x];
+                var spotColor = spot.SpotModel.Color;
+
+                if (spotColor.Equals(color))
+                {
+                    var pos = spot.transform.position;
+                    SpotPressFeedbackService.MakeFeedback(pos, spotColor);
+				}
+		    }
+		}
+    }
+
+    /// <summary>
+    /// Kicks off animation for dropping spots from the top of the screen.
+    /// </summary>
+    IEnumerator DropSpotsFromAbove()
     { 
         for (var y = 0; y < GameConfiguration.Height; y++)
         { 
@@ -52,11 +86,8 @@ public class BoardPresenter : MonoBehaviour
                 spotPresenter.AnimateFallAndBounce(.5f);
 		    }
 
-		    if (shouldStagger)
-			    yield return new WaitForSeconds(.001f);
+		    yield return new WaitForSeconds(.05f);
 		}
-
-        yield return null;
     }
 
     /// <summary>
@@ -69,35 +100,35 @@ public class BoardPresenter : MonoBehaviour
         // For each column,
         for (var x = 0; x < GameConfiguration.Width; x++)
         { 
-			// Create a new column containing the non-null nodes.
+			// Create a new column.
 			List<SpotPresenter> newColumn = new List<SpotPresenter>();
 
-            // Populate the new column.
+            // Fill the new column with the spots that aren't null.
             for (var y = 0; y < GameConfiguration.Height; y++)
             {
-                var row = BoardModel.Spots?[y];
+                var row = BoardModel.Spots[y];
                 if (row == null)
                     continue;
 
                 var spot = row[x];
-                if (spot != null)
-                    newColumn.Add(spot);
+                if (spot == null)
+                    continue;
+
+			    newColumn.Add(spot);
 		    }
 
-            // Finally, update the grid. (Cache locality isn't great. :P)
+            // Update the grid with the new column.
+            // At this point, some (or all) spots from the top of the column may be null.
             for (var y = 0; y < newColumn.Count; y++)
             { 
                 BoardModel.Spots[y][x] = newColumn[y];
                 newColumn[y].SpotModel.BoardPosition = new Vector2Int(x, y);
 		    }
 
-			// Generate new spots to fill in the remainder of the row.
+			// Generate new spots to fill in the remainder of the column.
             for (var y = newColumn.Count; y < GameConfiguration.Height; y++)
             {
-                var row = BoardModel.Spots?[y];
-                if (row == null)
-                    continue;
-
+                var row = BoardModel.Spots[y];
                 row[x] = SpotPrefabService.MakeSpot(x, y);
                 numNewSpots++;
 		    }
@@ -105,7 +136,7 @@ public class BoardPresenter : MonoBehaviour
 
         if (numNewSpots > 0)
         {
-            StartCoroutine(StaggerDropAnimations(shouldStagger: false));
+            StartCoroutine(DropSpotsFromAbove());
 		}
     }
 
@@ -436,6 +467,9 @@ public class BoardPresenter : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// Handle "disconnect" actions, or when the player lets go of the spots they connected.
+    /// </summary>
     void HandleDisconnects(bool isSquare)
     {
         // If player did not release mouse button this frame, early return.
@@ -482,6 +516,12 @@ public class BoardPresenter : MonoBehaviour
                 var boardPos = spot.SpotModel.BoardPosition;
                 var x = boardPos.x;
                 var y = boardPos.y;
+
+                if (BoardModel.Spots == null)
+                    throw new System.Exception("wtf");
+
+                if (BoardModel.Spots[y] == null)
+                    throw new System.Exception("wtf");
 
                 // Clear that spot from the grid (leaving a `null` in its place).
                 var spotPresenter = BoardModel.Spots[y][x];
