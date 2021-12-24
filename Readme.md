@@ -19,3 +19,5 @@ test cases:
 webgl build
 
 https://answers.unity.com/questions/375774/what-causes-the-audio-clicking-how-do-i-get-a-clea.html
+
+https://stackoverflow.com/questions/55026293/google-chrome-javascript-issue-in-getting-user-audio-the-audiocontext-was-not

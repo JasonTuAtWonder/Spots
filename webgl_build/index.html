@@ -6,20 +6,26 @@
     <title>Unity WebGL Player | Spots</title>
   </head>
   <body style="text-align: center">
-    <canvas id="unity-canvas" width=750 height=750 style="width: 750px; height: 750px; background: #231F20"></canvas>
+    <button type="button" id="LoadButton" style="font-size: 2rem; margin-top: 50px;">Load Game</button>
+    <canvas id="unity-canvas" width=750 height=750 style="width: 750px; height: 750px; background: #231F20; display: none; margin-left: auto; margin-right: auto;"></canvas>
     <script src="Build/webgl_build.loader.js"></script>
     <script>
-      createUnityInstance(document.querySelector("#unity-canvas"), {
-        dataUrl: "Build/webgl_build.data",
-        frameworkUrl: "Build/webgl_build.framework.js",
-        codeUrl: "Build/webgl_build.wasm",
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: "DefaultCompany",
-        productName: "Spots",
-        productVersion: "0.1",
-        // matchWebGLToCanvasSize: false, // Uncomment this to separately control WebGL canvas render size and DOM element size.
-        // devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
-      });
+document.getElementById("LoadButton").onclick = function() {
+	document.getElementById("LoadButton").style.display = 'none';
+	document.getElementById("unity-canvas").style.display = 'block';
+
+	createUnityInstance(document.querySelector("#unity-canvas"), {
+		dataUrl: "Build/webgl_build.data",
+		frameworkUrl: "Build/webgl_build.framework.js",
+		codeUrl: "Build/webgl_build.wasm",
+		streamingAssetsUrl: "StreamingAssets",
+		companyName: "DefaultCompany",
+		productName: "Spots",
+		productVersion: "0.1",
+		// matchWebGLToCanvasSize: false, // Uncomment this to separately control WebGL canvas render size and DOM element size.
+		// devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
+	});
+};
     </script>
   </body>
 </html>

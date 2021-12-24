@@ -21,6 +21,11 @@ public class AudioService : MonoBehaviour
     /// </summary>
     [NotNull] public AudioClip Chime;
 
+    /// <summary>
+    /// Silence clip used to tell Unity/WebGL to resume AudioContext.
+    /// </summary>
+    [NotNull] public AudioClip Silence;
+
     void Awake()
     {
         // Sanity check to ensure I loaded all the AudioClips I have available.
@@ -34,10 +39,8 @@ public class AudioService : MonoBehaviour
 
     void FixWebGLSound()
     { 
-        // Play a dummy, zero-volume sound to avoid blips in WebGL build.
-        var audioSource = GetAudioSource(Notes[0]);
-        audioSource.volume = 0f;
-        PlayOneShot(audioSource);
+        // Play a dummy, zero-volume sound at app start to avoid blips in-game.
+        PlayOneShot(Silence);
     }
 
     /// <summary>
