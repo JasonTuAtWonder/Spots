@@ -272,12 +272,18 @@ public class BoardPresenter : MonoBehaviour
         // Play audio feedback.
         var audioClip = AudioService.Notes[BoardModel.ConnectedSpots.Count - 1];
         if (audioClip != null)
+        { 
             AudioService.PlayOneShot(audioClip);
+		}
         else
+        { 
             // Don't have sound, ah well – no-op.
+		}
 
 	    // Play visual feedback.
-        SpotPressFeedbackService.MakeFeedback(spotPresenter.transform.position, spotPresenter.SpotModel.Color);
+	    var pos = spotPresenter.transform.position;
+        var feedbackPos = new Vector3(pos.x, pos.y, -1f); // -1 is important, need to show on top!
+        SpotPressFeedbackService.MakeFeedback(feedbackPos, spotPresenter.SpotModel.Color);
     }
 
     /// <summary>
