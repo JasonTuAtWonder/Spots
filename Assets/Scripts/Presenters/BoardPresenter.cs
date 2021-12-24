@@ -305,11 +305,8 @@ public class BoardPresenter : MonoBehaviour
     /// </summary>
     void RemoveLastConnectedSpot()
     {
-        var lastIndex = BoardModel.ConnectedSpots.Count - 1;
-        var secondToLast = BoardModel.ConnectedSpots[lastIndex - 1];
-
-        // Remove the last connected spot.
-        BoardModel.ConnectedSpots.RemoveAt(lastIndex);
+        var spots = BoardModel.ConnectedSpots;
+        spots.RemoveAt(spots.Count - 1);
     }
 
     /// <summary>

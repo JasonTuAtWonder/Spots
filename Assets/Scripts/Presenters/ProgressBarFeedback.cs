@@ -1,5 +1,7 @@
 using UnityEngine;
+using UnityEngine.Assertions;
 using System.Collections;
+using System.Collections.Generic;
 
 /// <summary>
 /// ProgressBarFeedback presents the progress bar,
@@ -15,110 +17,135 @@ public class ProgressBarFeedback : MonoBehaviour
     [NotNull] public MeshRenderer MeshRenderer;
 
     /// <summary>
-    /// The number of connected spots during the previous frame.
+    /// The material instance of the rendered object.
     /// </summary>
-    int lastConnectedSpotsCount = -1;
-
-    /// <summary>
-    /// The currently-running progress bar animation.
-    /// </summary>
-    Coroutine currentAnimation;
-
     Material mat;
 
-    void Awake()
+    /// <summary>
+    /// The currently-running progress bar animation, if any.
+    /// </summary>
+	Coroutine currentAnimation = null;
+
+    void OnEnable()
     {
+        // Create instance of the rendered object's material.
         mat = MeshRenderer.material;
+        Assert.IsNotNull(mat, "Progress bar material should not be null.");
+
+        // Kick off coroutine that updates progress.
+        StartCoroutine(UpdateProgress(this, mat, BoardModel));
     }
 
     void OnDestroy()
     {
+        // Clean up material to avoid memory leak.
         Destroy(mat);
+    }
+
+    void OnDisable()
+    {
+        // Ensure all coroutines are stopped on domain reload.
+        StopAllCoroutines();
     }
 
     void Update()
     {
-        UpdateColor();
-        UpdateProgress(BoardModel.IsClosedSquare);
+        UpdateColor(mat, BoardModel.ConnectedSpots);
+        UpdateBackgroundColor(mat, BoardModel);
     }
 
     /// <summary>
-    /// Update the color of the progress bar.
+    /// Update the color of a material based on the color of connectedSpots.
+    ///
+    /// No assumption is made about whether each spot in connectedSpots has the same color.
     /// </summary>
-    void UpdateColor()
+    static void UpdateColor(Material progressBarMaterial, List<SpotPresenter> connectedSpots)
     { 
-        var count = BoardModel.ConnectedSpots.Count;
-        if (count > 0)
+        var count = connectedSpots.Count;
+        if (count == 0)
+            return;
+
+	    var color = connectedSpots[0].SpotModel.Color;
+		progressBarMaterial.SetColor("_Color", color);
+    }
+
+    static void UpdateBackgroundColor(Material progressBarMaterial, BoardViewModel boardModel)
+    {
+        var spots = boardModel.ConnectedSpots;
+        if (boardModel.IsClosedSquare && spots.Count > 0)
         {
-            var color = BoardModel.ConnectedSpots[0].SpotModel.Color;
-			mat.SetColor("_Color", color);
+			// Grab the color of the connected spots.
+		    var col = spots[0].SpotModel.Color;
+
+		    // Set background color to a shade of the selected color.
+		    var partiallyTransparentColor = new Color(col.r, col.g, col.b, .25f);
+            progressBarMaterial.SetColor("_BackgroundColor", partiallyTransparentColor);
+		}
+        else
+        { 
+		    // Set background color to transparent.
+		    var transparent = new Color(0, 0, 0, 0);
+		    progressBarMaterial.SetColor("_BackgroundColor", transparent);
 		}
     }
 
-    void StopAnimation()
-    { 
-        if (currentAnimation != null)
-        { 
-			StopCoroutine(currentAnimation);
-			currentAnimation = null;
+    static void StopCurrentAnimation(ProgressBarFeedback self)
+    {
+        if (self.currentAnimation != null)
+        {
+            self.StopCoroutine(self.currentAnimation);
+            self.currentAnimation = null;
 		}
     }
 
     /// <summary>
     /// Update the progress indicator.
-    ///
-    /// TODO: Logic needs work for rectangles and squares.
     /// </summary>
-    void UpdateProgress(bool didSeeRectangle)
+    static IEnumerator UpdateProgress(ProgressBarFeedback self, Material progressBarMaterial, BoardViewModel boardModel)
     {
-        return;
+        int lastConnectedSpotsCount = -1;
 
-        if (didSeeRectangle)
+        while (true)
         {
-            // Set background color to a shade of the selected color.
-            var color = BoardModel.ConnectedSpots[0].SpotModel.Color;
-            var partiallyTransparentColor = new Color(color.r, color.g, color.b, .25f);
-            mat.SetColor("_BackgroundColor", partiallyTransparentColor);
+            var count = boardModel.ConnectedSpots.Count;
 
-            // Immediately set progress to full.
-            StopAnimation();
-            mat.SetFloat("_Health", 1);
+			// If we saw a square loop, set the progress to 100%.
+            if (boardModel.IsClosedSquare)
+            {
+                StopCurrentAnimation(self);
+			    progressBarMaterial.SetFloat("_Health", 1);
+            }
+            // If the player disconnected some spots this frame, set the progress to 0%.
+            else if (lastConnectedSpotsCount > 0 && count == 0)
+            {
+                StopCurrentAnimation(self);
+                progressBarMaterial.SetFloat("_Health", 0);
+		    }
+            // If we *previously* saw a square loop, but no longer see one, set the progress to the desired value.
+            else if (boardModel.WasClosedSquare && !boardModel.IsClosedSquare)
+            {
+                StopCurrentAnimation(self);
+			    progressBarMaterial.SetFloat("_Health", count * .1f);
+		    }
+            // Otherwise, animate the progress bar to the desired value.
+			else if (lastConnectedSpotsCount != count)
+			{
+                var asyncOp = ToDesiredProgress(self, progressBarMaterial, count * .1f, .1f);
+			    self.currentAnimation = self.StartCoroutine(asyncOp);
+			}
 
-            // Early return.
-            return;
-		}
-
-	    // Set background color to transparent.
-	    var transparent = new Color(0, 0, 0, 0);
-	    mat.SetColor("_BackgroundColor", transparent);
-
-        // Update the progress bar to reflect the current value.
-        var count = BoardModel.ConnectedSpots.Count;
-        if (lastConnectedSpotsCount > 0 && count == 0)
-        {
-            // Immediately set progress to zero.
-            StopAnimation();
-            mat.SetFloat("_Health", 0);
-		}
-        else if (lastConnectedSpotsCount != count)
-        {
-            // Clear last animation.
-			StopAnimation();
-
-            // Animate progress bar to desired progress value.
-            currentAnimation = StartCoroutine(ToDesiredProgress(count * .1f, .1f));
-
-            // Update bookkeeping variable.
-            lastConnectedSpotsCount = count;
-		}
+			// Update bookkeeping variable, and complete 1 step of coroutine execution.
+			lastConnectedSpotsCount = count;
+			yield return null;
+        }
     }
 
     /// <summary>
     /// Animate to the `desiredProgress` value over `duration` seconds.
     /// </summary>
-    IEnumerator ToDesiredProgress(float desiredProgress, float duration)
+    static IEnumerator ToDesiredProgress(ProgressBarFeedback self, Material progressBarMaterial, float desiredProgress, float duration)
     {
-        var from = mat.GetFloat("_Health");
+        var from = progressBarMaterial.GetFloat("_Health");
         var to = desiredProgress;
         var journey = 0f;
 
@@ -132,10 +159,13 @@ public class ProgressBarFeedback : MonoBehaviour
             float value = Mathf.Lerp(from, to, t);
 
             // Update fields using elapsed time.
-			mat.SetFloat("_Health", value);
+			progressBarMaterial.SetFloat("_Health", value);
 
             // Complete one step of coroutine execution.
             yield return null;
         }
+
+        // Coroutine is done, remember to clear reference.
+        self.currentAnimation = null;
     }
 }
