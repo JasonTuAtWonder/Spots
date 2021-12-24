@@ -14,4 +14,6 @@ https://spots-liart.vercel.app
 
 test cases:
 
+* test mode in game configuration
 
+webgl build

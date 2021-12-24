@@ -40,9 +40,10 @@ public class BoardPresenter : MonoBehaviour
     void Update()
     {
 		var didUpdateConnectedSpots = OnSpotMove(UpdateConnectedSpots);
+		BoardModel.IsClosedSquare = SquareMechanic.IsSquareLoop(BoardModel.ConnectedSpots);
+
 	    if (didUpdateConnectedSpots)
         { 
-			BoardModel.IsClosedSquare = SquareMechanic.IsSquareLoop(BoardModel.ConnectedSpots);
             if (BoardModel.DetectedClosedSquare)
             {
                 ShowSquareDetectionFeedback();
