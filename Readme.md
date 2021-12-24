@@ -17,3 +17,5 @@ test cases:
 * test mode in game configuration
 
 webgl build
+
+https://answers.unity.com/questions/375774/what-causes-the-audio-clicking-how-do-i-get-a-clea.html

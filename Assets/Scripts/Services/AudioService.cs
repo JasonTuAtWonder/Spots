@@ -27,6 +27,19 @@ public class AudioService : MonoBehaviour
         Assert.IsTrue(Notes.Length == 13);
     }
 
+    void Start()
+    {
+        FixWebGLSound();
+    }
+
+    void FixWebGLSound()
+    { 
+        // Play a dummy, zero-volume sound to avoid blips in WebGL build.
+        var audioSource = GetAudioSource(Notes[0]);
+        audioSource.volume = 0f;
+        PlayOneShot(audioSource);
+    }
+
     /// <summary>
     /// Fetch a newly created AudioSource for a specified SoundEffect.
     ///
