@@ -39,8 +39,13 @@ public class BoardPresenter : MonoBehaviour
 
     void Update()
     {
-        BoardModel.IsClosedSquare = OnSpotMove(UpdateConnectedSpots);
-	    Debug.Log("is closed square:" + BoardModel.IsClosedSquare);
+        if (Input.GetMouseButton(0))
+        { 
+			OnSpotMove(UpdateConnectedSpots);
+		}
+
+        BoardModel.IsClosedSquare = SquareMechanic.IsSquareLoop(BoardModel.ConnectedSpots);
+	    Debug.Log("BoardModel.IsClosedSquare: " + BoardModel.IsClosedSquare + " " + BoardModel.ConnectedSpots.Count);
 
         if (BoardModel.DetectedClosedSquare)
         { 
@@ -54,7 +59,6 @@ public class BoardPresenter : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0))
         {
-            Debug.Log("is closed square:" + BoardModel.IsClosedSquare);
 			HandleDisconnects(BoardModel.IsClosedSquare);
 			ReplenishSpots();
 		}
@@ -170,15 +174,14 @@ public class BoardPresenter : MonoBehaviour
     /// <summary>
     /// Handle the event when the player moves over a spot.
     /// </summary>
-    /// <returns>Whether the player formed a closed rectangle of spots.</returns>
-    bool UpdateConnectedSpots(SpotPresenter newSpot)
+    void UpdateConnectedSpots(SpotPresenter newSpot)
     {
         // If there are no other connected spots,
         if (BoardModel.ConnectedSpots.Count == 0)
         {
             // Connect the spot as the first spot, and early return.
             ConnectSpot(newSpot, false);
-            return false;
+            return;
         }
 
         // Grab the last connected spot.
@@ -187,18 +190,18 @@ public class BoardPresenter : MonoBehaviour
 
 	    // If the colors don't match, early return.
 	    if (!lastSpot.SpotModel.Color.Equals(newSpot.SpotModel.Color))
-			return false;
+			return;
 
 	    // If the spots are not cardinally adjacent, early return.
 	    if (!SquareMechanic.IsCardinallyAdjacent(lastSpot, newSpot))
-			return false;
+			return;
 
         // If the spot isn't already connected, connect the spot and early return.
 	    var foundIndex = BoardModel.ConnectedSpots.FindIndex(spot => spot == newSpot);
         if (foundIndex == -1)
         {
             ConnectSpot(newSpot, false);
-            return false;
+            return;
 		}
 
         // If the spot is the second-to-last-connected spot,
@@ -206,49 +209,30 @@ public class BoardPresenter : MonoBehaviour
         { 
             // Remove the last connected spot and early return.
 		    RemoveLastConnectedSpot();
-            return false;
+            return;
 		}
 
         // If a loop was detected,
         var isLoop = foundIndex == 0 && BoardModel.ConnectedSpots.Count >= 4;
         if (isLoop)
         { 
-            // Then compute whether the loop is square. (Do this before updating the ConnectedSpots list.)
-			var isSquare = SquareMechanic.IsSquare(BoardModel.ConnectedSpots);
-
-            // If the spot isn't already connected,
+            // And the spot isn't already connected,
             var spots = BoardModel.ConnectedSpots;
-            if (newSpot != spots[spots.Count - 1])
+            if (spots[spots.Count - 1] != newSpot)
             { 
 			    // Connect the spot to close the loop.
-			    ConnectSpot(newSpot, isSquare);
+			    ConnectSpot(newSpot, true);
 		    }
-
-            // And return whether the loop is square.
-            return isSquare;
 		}
-
-        // Otherwise, there's a case that we haven't handled.
-        // Throw an exception when in development, but otherwise return false.
-#if UNITY_EDITOR
-        // throw new System.Exception("Unhandled case."); // Keep this around if you'd like to debug!
-        return false;
-#else
-		return false;
-#endif
     }
 
     /// <summary>
     /// Run a specified event handler when the player mouses over a spot.
     /// </summary>
     /// <returns>Whether a closed square was detected.</returns>
-    bool OnSpotMove(Func<SpotPresenter, bool> handleSpotMove)
+    void OnSpotMove(Action<SpotPresenter> handleSpotMove)
     {
-        // If the player is not holding their left mouse button, early return.
-        if (!Input.GetMouseButton(0))
-            return false;
-
-        // Otherwise, cast a ray through the scene.
+        // Cast a ray through the scene.
         var mouseWorldPos = Input.mousePosition;
         Ray ray = Camera.ScreenPointToRay(mouseWorldPos);
         var hits = Physics.RaycastAll(ray);
@@ -262,11 +246,9 @@ public class BoardPresenter : MonoBehaviour
 
             // Otherwise, the hit object is a spot. Handle the spot press event.
             var spotPresenter = hitInfo.collider.GetComponent<SpotPresenter>();
-            return handleSpotMove(spotPresenter);
+            handleSpotMove(spotPresenter);
+            return;
 		}
-
-        // If no spots were pressed, then return false: a closed square was not detected.
-        return false;
     }
 
     /// <summary>
@@ -340,8 +322,6 @@ public class BoardPresenter : MonoBehaviour
 
         if (isSquareLoop)
         {
-            throw new System.Exception("sanity check");
-
             // Then mark all spots of the same color (as the connected square) for destruction:
 
             // Find the color of the connected square dots.

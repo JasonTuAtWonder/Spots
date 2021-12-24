@@ -71,6 +71,8 @@ public class ProgressBarFeedback : MonoBehaviour
     /// </summary>
     void UpdateProgress(bool didSeeRectangle)
     {
+        return;
+
         if (didSeeRectangle)
         {
             // Set background color to a shade of the selected color.
