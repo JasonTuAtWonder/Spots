@@ -31,31 +31,31 @@ public class BoardViewModel : MonoBehaviour
     }
 
     /// <summary>
-    /// Whether a square (or rectangle) is being connected by the player.
+    /// Whether a square is being connected by the player.
     /// </summary>
-    public bool IsClosedRectangle
+    public bool IsClosedSquare
     {
         get;
         set;
     }
 
     /// <summary>
-    /// Whether a square (or rectangle) was being connected by the player the previous frame.
+    /// Whether a square was being connected by the player the previous frame.
     /// </summary>
-    public bool WasClosedRectangle
+    public bool WasClosedSquare
     {
         get;
         private set;
     }
 
     /// <summary>
-    /// Whether a square (or rectangle) was newly detected this frame.
+    /// Whether a square was newly detected this frame.
     /// </summary>
-    public bool IsClosedRectangleDetected
+    public bool DetectedClosedSquare
     { 
         get
         {
-            return IsClosedRectangle && !WasClosedRectangle;
+            return IsClosedSquare && !WasClosedSquare;
 		}
     }
 
@@ -70,6 +70,6 @@ public class BoardViewModel : MonoBehaviour
 
     void LateUpdate()
     {
-        WasClosedRectangle = IsClosedRectangle;
+        WasClosedSquare = IsClosedSquare;
     }
 }

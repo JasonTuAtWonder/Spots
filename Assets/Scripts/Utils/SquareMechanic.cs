@@ -194,8 +194,17 @@ public static class SquareMechanic
     ///
     /// NOTE: This method only detects squares – not rectangles.
     /// </summary>
-    public static bool IsSquare(List<SpotPresenter> spots)
+    public static bool IsSquare(List<SpotPresenter> _spots)
     {
+        var spots = new List<SpotPresenter>(_spots);
+        var first = spots[0];
+        var last = spots[spots.Count - 1];
+        if (first != null && last != null && first == last)
+        {
+            // Remove the duplicate last element before running the IsSquare() check.
+            spots.RemoveAt(spots.Count - 1);
+		}
+
         if (!IsSquare(spots.Count))
         {
             return false;

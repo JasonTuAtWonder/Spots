@@ -39,9 +39,10 @@ public class BoardPresenter : MonoBehaviour
 
     void Update()
     {
-        BoardModel.IsClosedRectangle = OnSpotMove(UpdateConnectedSpots);
+        BoardModel.IsClosedSquare = OnSpotMove(UpdateConnectedSpots);
+	    Debug.Log("is closed square:" + BoardModel.IsClosedSquare);
 
-        if (BoardModel.IsClosedRectangleDetected)
+        if (BoardModel.DetectedClosedSquare)
         { 
             // Play some audio feedback.
 			AudioService.PlayOneShot(AudioService.Chime);
@@ -51,10 +52,10 @@ public class BoardPresenter : MonoBehaviour
             HighlightAllSpotsWith(color);
 		}
 
-        HandleDisconnects(BoardModel.IsClosedRectangle);
-
         if (Input.GetMouseButtonUp(0))
-        { 
+        {
+            Debug.Log("is closed square:" + BoardModel.IsClosedSquare);
+			HandleDisconnects(BoardModel.IsClosedSquare);
 			ReplenishSpots();
 		}
     }
@@ -176,7 +177,7 @@ public class BoardPresenter : MonoBehaviour
         if (BoardModel.ConnectedSpots.Count == 0)
         {
             // Connect the spot as the first spot, and early return.
-            ConnectSpot(newSpot);
+            ConnectSpot(newSpot, false);
             return false;
         }
 
@@ -196,7 +197,7 @@ public class BoardPresenter : MonoBehaviour
 	    var foundIndex = BoardModel.ConnectedSpots.FindIndex(spot => spot == newSpot);
         if (foundIndex == -1)
         {
-            ConnectSpot(newSpot);
+            ConnectSpot(newSpot, false);
             return false;
 		}
 
@@ -215,8 +216,13 @@ public class BoardPresenter : MonoBehaviour
             // Then compute whether the loop is square. (Do this before updating the ConnectedSpots list.)
 			var isSquare = SquareMechanic.IsSquare(BoardModel.ConnectedSpots);
 
-            // Connect the spot to close the loop.
-            ConnectSpot(newSpot);
+            // If the spot isn't already connected,
+            var spots = BoardModel.ConnectedSpots;
+            if (newSpot != spots[spots.Count - 1])
+            { 
+			    // Connect the spot to close the loop.
+			    ConnectSpot(newSpot, isSquare);
+		    }
 
             // And return whether the loop is square.
             return isSquare;
@@ -235,7 +241,7 @@ public class BoardPresenter : MonoBehaviour
     /// <summary>
     /// Run a specified event handler when the player mouses over a spot.
     /// </summary>
-    /// <returns>Whether a closed rectangle was detected.</returns>
+    /// <returns>Whether a closed square was detected.</returns>
     bool OnSpotMove(Func<SpotPresenter, bool> handleSpotMove)
     {
         // If the player is not holding their left mouse button, early return.
@@ -256,19 +262,24 @@ public class BoardPresenter : MonoBehaviour
 
             // Otherwise, the hit object is a spot. Handle the spot press event.
             var spotPresenter = hitInfo.collider.GetComponent<SpotPresenter>();
-            var isClosedRectangle = handleSpotMove(spotPresenter);
-            return isClosedRectangle;
+            return handleSpotMove(spotPresenter);
 		}
 
-        // If no spots were pressed, then return false: a closed rectangle was not detected.
+        // If no spots were pressed, then return false: a closed square was not detected.
         return false;
     }
 
     /// <summary>
     /// Provide some feedback to the player when they connect a new spot.
     /// </summary>
-    void PlayConnectSpotFeedback(SpotPresenter spotPresenter)
+    void PlayConnectSpotFeedback(SpotPresenter spotPresenter, bool isSquareLoop)
     { 
+        // If a square loop was detected, do not play feedback – we're handling that elsewhere.
+        if (isSquareLoop)
+        {
+            return;
+		}
+
         // Play audio feedback.
         var audioClip = AudioService.Notes[BoardModel.ConnectedSpots.Count - 1];
         if (audioClip != null)
@@ -289,13 +300,13 @@ public class BoardPresenter : MonoBehaviour
     /// <summary>
     /// Connect a new spot.
     /// </summary>
-    void ConnectSpot(SpotPresenter spotPresenter)
+    void ConnectSpot(SpotPresenter spotPresenter, bool isSquareLoop)
     {
         // Update connected spots.
         BoardModel.ConnectedSpots.Add(spotPresenter);
 
         // And play some audiovisual feedback.
-        PlayConnectSpotFeedback(spotPresenter);
+        PlayConnectSpotFeedback(spotPresenter, isSquareLoop);
     }
 
     /// <summary>
@@ -312,7 +323,7 @@ public class BoardPresenter : MonoBehaviour
         BoardModel.ConnectedSpots.RemoveAt(lastIndex);
 
         // And play some audiovisual feedback.
-        PlayConnectSpotFeedback(secondToLast);
+        PlayConnectSpotFeedback(secondToLast, false);
     }
 
     /// <summary>
@@ -320,10 +331,6 @@ public class BoardPresenter : MonoBehaviour
     /// </summary>
     void HandleDisconnects(bool isSquareLoop)
     {
-        // If player did not release the mouse button this frame, early return.
-        if (!Input.GetMouseButtonUp(0))
-            return;
-
 		// Grab a copy of the list of connected dots.
         var connectedSpots = BoardModel.ConnectedSpots;
 		var spotsToDestroy = new List<SpotPresenter>(connectedSpots);
@@ -333,6 +340,8 @@ public class BoardPresenter : MonoBehaviour
 
         if (isSquareLoop)
         {
+            throw new System.Exception("sanity check");
+
             // Then mark all spots of the same color (as the connected square) for destruction:
 
             // Find the color of the connected square dots.

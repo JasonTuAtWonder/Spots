@@ -39,7 +39,7 @@ public class ProgressBarFeedback : MonoBehaviour
     void Update()
     {
         UpdateColor();
-        UpdateProgress(BoardModel.IsClosedRectangle);
+        UpdateProgress(BoardModel.IsClosedSquare);
     }
 
     /// <summary>
