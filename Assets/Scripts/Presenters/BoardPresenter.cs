@@ -40,12 +40,9 @@ public class BoardPresenter : MonoBehaviour
     void Update()
     {
 		var didUpdateConnectedSpots = OnSpotMove(UpdateConnectedSpots);
-
-        BoardModel.IsClosedSquare = SquareMechanic.IsSquareLoop(BoardModel.ConnectedSpots);
-	    Debug.Log("BoardModel.IsClosedSquare: " + BoardModel.IsClosedSquare + " " + BoardModel.ConnectedSpots.Count);
-
 	    if (didUpdateConnectedSpots)
         { 
+			BoardModel.IsClosedSquare = SquareMechanic.IsSquareLoop(BoardModel.ConnectedSpots);
             if (BoardModel.DetectedClosedSquare)
             {
                 PlaySquareDetectedFeedback();
@@ -54,13 +51,13 @@ public class BoardPresenter : MonoBehaviour
             {
                 var spots = BoardModel.ConnectedSpots;
                 var last = spots[spots.Count - 1];
-                PlayConnectSpotFeedback(last);
+                PlaySpotConnectedFeedback(last);
 		    }
 		}
 
         if (Input.GetMouseButtonUp(0))
         {
-			HandleDisconnects(BoardModel.IsClosedSquare);
+			DisconnectSpots();
 			ReplenishSpots();
 		}
     }
@@ -263,7 +260,7 @@ public class BoardPresenter : MonoBehaviour
     /// <summary>
     /// Provide some feedback to the player when they connect a new spot.
     /// </summary>
-    void PlayConnectSpotFeedback(SpotPresenter spotPresenter)
+    void PlaySpotConnectedFeedback(SpotPresenter spotPresenter)
     { 
         // Play audio feedback.
         var audioClip = AudioService.Notes[BoardModel.ConnectedSpots.Count - 1];
@@ -318,7 +315,7 @@ public class BoardPresenter : MonoBehaviour
     /// <summary>
     /// Handle "disconnect" actions, or when the player lets go of the spots they connected.
     /// </summary>
-    void HandleDisconnects(bool isSquareLoop)
+    void DisconnectSpots()
     {
 		// Grab a copy of the list of connected dots.
         var connectedSpots = BoardModel.ConnectedSpots;
@@ -327,7 +324,7 @@ public class BoardPresenter : MonoBehaviour
 		// Clear the connected dots from the board.
 		connectedSpots.Clear();
 
-        if (isSquareLoop)
+        if (BoardModel.IsClosedSquare)
         {
             // Then mark all spots of the same color (as the connected square) for destruction:
 
