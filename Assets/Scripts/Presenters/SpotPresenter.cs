@@ -9,7 +9,7 @@ public class SpotPresenter : MonoBehaviour
     [Header("Views")]
     [NotNull] public MeshRenderer SpotView;
     [NotNull] public GameObject Scaler;
-    public AnimationCurve DisappearAnimation;
+    public AnimationCurve DisappearAnimationCurve;
 
     Material spotMaterial;
 
@@ -42,7 +42,7 @@ public class SpotPresenter : MonoBehaviour
         transform.position = worldPos;
     }
 
-    private IEnumerator FallAndBounce(float duration)
+    private IEnumerator FallAndBounceAnimation(float duration)
     {
         var pos = transform.position;
         var from = new Vector2(pos.x, pos.y);
@@ -72,15 +72,15 @@ public class SpotPresenter : MonoBehaviour
         }
     }
 
-    public void AnimateFallAndBounce(float duration)
+    public void FallAndBounce(float duration)
     {
-        StartCoroutine(FallAndBounce(duration));
+        StartCoroutine(FallAndBounceAnimation(duration));
     }
 
     /// <summary>
     /// Kick off a "disappear" animation, then destroy the GameObject once the animation is done.
     /// </summary>
-    private IEnumerator Disappear(float duration)
+    private IEnumerator DisappearAnimation(float duration)
     {
         var from = Vector3.one;
         var to = Vector3.zero;
@@ -93,7 +93,7 @@ public class SpotPresenter : MonoBehaviour
 
             // Compute lerp value.
             float t = Mathf.Clamp01(journey / duration);
-            t = DisappearAnimation.Evaluate(t);
+            t = DisappearAnimationCurve.Evaluate(t);
 
             // Update scale.
 			Scaler.transform.localScale = Vector3.LerpUnclamped(from, to, t);
@@ -106,8 +106,8 @@ public class SpotPresenter : MonoBehaviour
         Destroy(gameObject);
     }
 
-    public void AnimateDisappear(float duration)
+    public void Disappear(float duration)
     {
-        StartCoroutine(Disappear( duration));
+        StartCoroutine(DisappearAnimation(duration));
     }
 }

@@ -1,6 +1,10 @@
 using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// SpotPressFeedback presents some audiovisual feedback when we want to call
+/// the player's attention to a spot.
+/// </summary>
 public class SpotPressFeedback : MonoBehaviour
 {
     [Header("Views")]

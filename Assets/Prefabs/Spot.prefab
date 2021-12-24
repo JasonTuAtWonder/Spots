@@ -188,7 +188,7 @@ MonoBehaviour:
   SpotModel: {fileID: 7394175089341421659}
   SpotView: {fileID: 4259193219806017104}
   Scaler: {fileID: 2152475797047877120}
-  DisappearAnimation:
+  DisappearAnimationCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -201,17 +201,17 @@ MonoBehaviour:
       inWeight: 0.33333334
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.14364737
-      value: -0.17686394
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 136
+      time: 0.16028209
+      value: -0.18992731
+      inSlope: -0.7192208
+      outSlope: -0.7192208
+      tangentMode: 0
       weightedMode: 0
       inWeight: 0.33333334
-      outWeight: 0.33333334
+      outWeight: 0.083419174
     - serializedVersion: 3
-      time: 0.93487394
-      value: 0.9208955
+      time: 0.85189074
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 136
