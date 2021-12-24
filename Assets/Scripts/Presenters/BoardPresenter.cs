@@ -45,13 +45,13 @@ public class BoardPresenter : MonoBehaviour
 			BoardModel.IsClosedSquare = SquareMechanic.IsSquareLoop(BoardModel.ConnectedSpots);
             if (BoardModel.DetectedClosedSquare)
             {
-                PlaySquareDetectedFeedback();
+                ShowSquareDetectionFeedback();
 		    }
             else
             {
                 var spots = BoardModel.ConnectedSpots;
                 var last = spots[spots.Count - 1];
-                PlaySpotConnectedFeedback(last);
+                CallAttentionToSpot(last);
 		    }
 		}
 
@@ -260,7 +260,7 @@ public class BoardPresenter : MonoBehaviour
     /// <summary>
     /// Provide some feedback to the player when they connect a new spot.
     /// </summary>
-    void PlaySpotConnectedFeedback(SpotPresenter spotPresenter)
+    void CallAttentionToSpot(SpotPresenter spotPresenter)
     { 
         // Play audio feedback.
         var audioClip = AudioService.Notes[BoardModel.ConnectedSpots.Count - 1];
@@ -279,7 +279,7 @@ public class BoardPresenter : MonoBehaviour
         SpotPressFeedbackService.MakeFeedback(feedbackPos, spotPresenter.SpotModel.Color);
     }
 
-    void PlaySquareDetectedFeedback()
+    void ShowSquareDetectionFeedback()
     { 
 	    // Play some audio feedback.
 		AudioService.PlayOneShot(AudioService.Chime);
