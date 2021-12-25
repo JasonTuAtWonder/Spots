@@ -262,9 +262,9 @@ public class BoardPresenter : MonoBehaviour
     /// Provide some feedback to the player when they connect a new spot.
     /// </summary>
     void CallAttentionToSpot(SpotPresenter spotPresenter)
-    { 
+    {
         // Play audio feedback.
-        var audioClip = AudioService.Notes[BoardModel.ConnectedSpots.Count - 1];
+        var audioClip = AudioService.Notes.ElementAtOrDefault(BoardModel.ConnectedSpots.Count - 1);
         if (audioClip != null)
         { 
             AudioService.PlayOneShot(audioClip);
