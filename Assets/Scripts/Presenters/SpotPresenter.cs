@@ -1,5 +1,5 @@
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
 
 public class SpotPresenter : MonoBehaviour
 {
@@ -36,8 +36,8 @@ public class SpotPresenter : MonoBehaviour
     }
 
     public void SetWorldPosition()
-    { 
-		var worldPos = Convert.BoardToWorldSpace(SpotModel.BoardPosition);
+    {
+        var worldPos = Convert.BoardToWorldSpace(SpotModel.BoardPosition);
         worldPos += new Vector2(0f, 100f);
         transform.position = worldPos;
     }
@@ -65,7 +65,7 @@ public class SpotPresenter : MonoBehaviour
             t = Easing.EaseOutBounce(t);
 
             // Update position.
-		    transform.position = Vector3.Lerp(from, to, t);
+            transform.position = Vector3.Lerp(from, to, t);
 
             // Complete one step of coroutine execution.
             yield return null;
@@ -96,7 +96,7 @@ public class SpotPresenter : MonoBehaviour
             t = SpotDisappear.AnimationCurve.Evaluate(t);
 
             // Update scale.
-			Scaler.transform.localScale = Vector3.LerpUnclamped(from, to, t);
+            Scaler.transform.localScale = Vector3.LerpUnclamped(from, to, t);
 
             // Complete one step of coroutine execution.
             yield return null;

@@ -36,18 +36,18 @@ public class GameConfiguration : ScriptableObject
         for (var i = 0; i < colors.Length; i++)
         {
             shuffledColors[i] = colors[i];
-		}
+        }
 
         // Then shuffle the colors.
         for (var i = colors.Length - 1; i >= 1; i--)
         {
-            var j = Random.Range(0, i+1);
+            var j = Random.Range(0, i + 1);
 
             // Shuffle.
             var temp = shuffledColors[i];
             shuffledColors[i] = shuffledColors[j];
             shuffledColors[j] = temp;
-		}
+        }
 
         return shuffledColors;
     }
@@ -63,7 +63,7 @@ public class GameConfiguration : ScriptableObject
         {
             // Temporarily choose fewer colors so it's easier to test matching spots.
             len = 2;
-		}
+        }
 #endif
 
         var i = Random.Range(0, len);

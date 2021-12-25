@@ -38,7 +38,7 @@ public class AudioService : MonoBehaviour
     }
 
     void FixWebGLSound()
-    { 
+    {
         // Play a dummy, zero-volume sound at app start to avoid blips in-game.
         PlayOneShot(Silence);
     }
@@ -75,6 +75,6 @@ public class AudioService : MonoBehaviour
     /// </summary>
     public void PlayOneShot(AudioClip audioClip)
     {
-		PlayOneShot(GetAudioSource(audioClip));
+        PlayOneShot(GetAudioSource(audioClip));
     }
 }

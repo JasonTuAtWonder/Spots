@@ -1,5 +1,5 @@
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
 
 /// <summary>
 /// CallAttentionToSpotPresenter presents some audiovisual feedback when we want to call

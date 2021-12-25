@@ -26,6 +26,6 @@ public class SpotModel : MonoBehaviour
         get
         {
             return Convert.BoardToWorldSpace(BoardPosition);
-		}
+        }
     }
 }

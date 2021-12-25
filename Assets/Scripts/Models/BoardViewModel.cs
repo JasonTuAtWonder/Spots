@@ -1,5 +1,5 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// BoardViewModel holds the data model for the game board.
@@ -52,11 +52,11 @@ public class BoardViewModel : MonoBehaviour
     /// Whether a square was newly detected this frame.
     /// </summary>
     public bool DetectedClosedSquare
-    { 
+    {
         get
         {
             return IsClosedSquare && !WasClosedSquare;
-		}
+        }
     }
 
     /// <summary>

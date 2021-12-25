@@ -19,7 +19,7 @@ public class SpotPrefabService : MonoBehaviour
     /// Instantiate spot at board coordinates (x, y).
     /// </summary>
     public SpotPresenter MakeSpot(int x, int y)
-    { 
+    {
         var spot = Instantiate(SpotPresenter);
         spot.SpotModel.BoardPosition = new Vector2Int(x, y);
         spot.SetWorldPosition();

@@ -1,16 +1,16 @@
-using UnityEngine;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 public enum Sign
-{ 
-	POSITIVE,
+{
+    POSITIVE,
     NEGATIVE,
     ZERO,
 }
 
 public enum Direction
-{ 
+{
     UP,
     DOWN,
     LEFT,
@@ -199,14 +199,14 @@ public static class SquareMechanic
         if (_spots.Count == 0)
         {
             return false;
-		}
+        }
 
         var first = _spots[0];
         var last = _spots[_spots.Count - 1];
         if (first == null || last == null || first != last)
         {
             return false;
-		}
+        }
 
         var spots = new List<SpotPresenter>(_spots);
         spots.RemoveAt(spots.Count - 1);

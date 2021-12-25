@@ -25,6 +25,6 @@ public class FingerIndicatorPresenter : MonoBehaviour
 
             // Position the finger indicator on top.
             FingerIndicator.transform.position = new Vector3(mouseWorldPos.x, mouseWorldPos.y, -1f);
-		}
+        }
     }
 }

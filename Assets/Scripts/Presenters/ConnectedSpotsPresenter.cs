@@ -1,5 +1,5 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// ConnectedSpotsPresenter visually connects like-colored dots that were connected by the player.
@@ -28,7 +28,7 @@ public class ConnectedSpotsPresenter : MonoBehaviour
     }
 
     void UpdateLineColor()
-    { 
+    {
         var spots = BoardModel.ConnectedSpots;
         if (spots.Count > 0)
         {
@@ -37,14 +37,14 @@ public class ConnectedSpotsPresenter : MonoBehaviour
             ConnectedDots.endColor = spot.SpotModel.Color;
             LastDotToMousePointer.startColor = spot.SpotModel.Color;
             LastDotToMousePointer.endColor = spot.SpotModel.Color;
-		}
+        }
     }
 
     /// <summary>
     /// Update the ConnectedDots LineRenderer to reflect the currently-connected dots' positions.
     /// </summary>
     void UpdateConnectedDots()
-    { 
+    {
         var positions = new List<Vector3>();
         var spots = BoardModel.ConnectedSpots;
 
@@ -52,7 +52,7 @@ public class ConnectedSpotsPresenter : MonoBehaviour
             positions.Add(spot.transform.position);
 
         ConnectedDots.positionCount = positions.Count;
-	    ConnectedDots.SetPositions(positions.ToArray());
+        ConnectedDots.SetPositions(positions.ToArray());
     }
 
     /// <summary>
@@ -76,6 +76,6 @@ public class ConnectedSpotsPresenter : MonoBehaviour
         }
 
         LastDotToMousePointer.positionCount = positions.Count;
-	    LastDotToMousePointer.SetPositions(positions.ToArray());
+        LastDotToMousePointer.SetPositions(positions.ToArray());
     }
 }
