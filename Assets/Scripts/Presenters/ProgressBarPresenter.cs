@@ -60,13 +60,13 @@ public class ProgressBarPresenter : MonoBehaviour
     /// No assumption is made about whether each spot in connectedSpots has the same color.
     /// </summary>
     static void UpdateColor(Material progressBarMaterial, List<SpotPresenter> connectedSpots)
-    { 
+    {
         var count = connectedSpots.Count;
         if (count == 0)
             return;
 
-	    var color = connectedSpots[0].SpotModel.Color;
-		progressBarMaterial.SetColor("_Color", color);
+        var color = connectedSpots[0].SpotModel.Color;
+        progressBarMaterial.SetColor("_Color", color);
     }
 
     static void UpdateBackgroundColor(Material progressBarMaterial, BoardViewModel boardModel)
@@ -74,19 +74,19 @@ public class ProgressBarPresenter : MonoBehaviour
         var spots = boardModel.ConnectedSpots;
         if (boardModel.IsClosedSquare && spots.Count > 0)
         {
-			// Grab the color of the connected spots.
-		    var col = spots[0].SpotModel.Color;
+            // Grab the color of the connected spots.
+            var col = spots[0].SpotModel.Color;
 
-		    // Set background color to a shade of the selected color.
-		    var partiallyTransparentColor = new Color(col.r, col.g, col.b, .25f);
+            // Set background color to a shade of the selected color.
+            var partiallyTransparentColor = new Color(col.r, col.g, col.b, .25f);
             progressBarMaterial.SetColor("_BackgroundColor", partiallyTransparentColor);
-		}
+        }
         else
-        { 
-		    // Set background color to transparent.
-		    var transparent = new Color(0, 0, 0, 0);
-		    progressBarMaterial.SetColor("_BackgroundColor", transparent);
-		}
+        {
+            // Set background color to transparent.
+            var transparent = new Color(0, 0, 0, 0);
+            progressBarMaterial.SetColor("_BackgroundColor", transparent);
+        }
     }
 
     static void StopCurrentAnimation(ProgressBarPresenter self)
@@ -95,7 +95,7 @@ public class ProgressBarPresenter : MonoBehaviour
         {
             self.StopCoroutine(self.currentAnimation);
             self.currentAnimation = null;
-		}
+        }
     }
 
     /// <summary>
@@ -109,34 +109,34 @@ public class ProgressBarPresenter : MonoBehaviour
         {
             var count = boardModel.ConnectedSpots.Count;
 
-			// If we saw a square loop, set the progress to 100%.
+            // If we saw a square loop, set the progress to 100%.
             if (boardModel.IsClosedSquare)
             {
                 StopCurrentAnimation(self);
-			    progressBarMaterial.SetFloat("_Health", 1);
+                progressBarMaterial.SetFloat("_Health", 1);
             }
             // If the player disconnected some spots this frame, set the progress to 0%.
             else if (lastConnectedSpotsCount > 0 && count == 0)
             {
                 StopCurrentAnimation(self);
                 progressBarMaterial.SetFloat("_Health", 0);
-		    }
+            }
             // If we *previously* saw a square loop, but no longer see one, set the progress to the desired value.
             else if (boardModel.WasClosedSquare && !boardModel.IsClosedSquare)
             {
                 StopCurrentAnimation(self);
-			    progressBarMaterial.SetFloat("_Health", count * .1f);
-		    }
+                progressBarMaterial.SetFloat("_Health", count * .1f);
+            }
             // Otherwise, animate the progress bar to the desired value.
-			else if (lastConnectedSpotsCount != count)
-			{
+            else if (lastConnectedSpotsCount != count)
+            {
                 var asyncOp = ToDesiredProgress(self, progressBarMaterial, count * .1f, .1f);
-			    self.currentAnimation = self.StartCoroutine(asyncOp);
-			}
+                self.currentAnimation = self.StartCoroutine(asyncOp);
+            }
 
-			// Update bookkeeping variable, and complete 1 step of coroutine execution.
-			lastConnectedSpotsCount = count;
-			yield return null;
+            // Update bookkeeping variable, and complete 1 step of coroutine execution.
+            lastConnectedSpotsCount = count;
+            yield return null;
         }
     }
 
@@ -159,7 +159,7 @@ public class ProgressBarPresenter : MonoBehaviour
             float value = Mathf.Lerp(from, to, t);
 
             // Update fields using elapsed time.
-			progressBarMaterial.SetFloat("_Health", value);
+            progressBarMaterial.SetFloat("_Health", value);
 
             // Complete one step of coroutine execution.
             yield return null;

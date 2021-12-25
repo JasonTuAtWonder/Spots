@@ -39,37 +39,37 @@ public class BoardPresenter : MonoBehaviour
 
     void Update()
     {
-		var didUpdateConnectedSpots = OnSpotMove(UpdateConnectedSpots);
-		BoardModel.IsClosedSquare = SquareMechanic.IsSquareLoop(BoardModel.ConnectedSpots);
+        var didUpdateConnectedSpots = OnSpotMove(UpdateConnectedSpots);
+        BoardModel.IsClosedSquare = SquareMechanic.IsSquareLoop(BoardModel.ConnectedSpots);
 
-	    if (didUpdateConnectedSpots)
-        { 
+        if (didUpdateConnectedSpots)
+        {
             if (BoardModel.DetectedClosedSquare)
             {
                 ShowSquareDetectionFeedback();
-		    }
+            }
             else
             {
                 var spots = BoardModel.ConnectedSpots;
                 var last = spots[spots.Count - 1];
                 CallAttentionToSpot(last);
-		    }
-		}
+            }
+        }
 
         if (Input.GetMouseButtonUp(0))
         {
-			DisconnectSpots();
-			ReplenishSpots();
-		}
+            DisconnectSpots();
+            ReplenishSpots();
+        }
     }
 
     /// <summary>
     /// Highlight all spots with a given `color`.
     /// </summary>
     void HighlightAllSpotsWith(Color color)
-    { 
+    {
         for (var y = 0; y < GameConfiguration.Height; y++)
-        { 
+        {
             for (var x = 0; x < GameConfiguration.Width; x++)
             {
                 var spot = BoardModel.Spots[y][x];
@@ -79,26 +79,26 @@ public class BoardPresenter : MonoBehaviour
                 {
                     var pos = spot.transform.position;
                     SpotPressFeedbackService.MakeFeedback(pos, spotColor);
-				}
-		    }
-		}
+                }
+            }
+        }
     }
 
     /// <summary>
     /// Kicks off animation for dropping spots from the top of the screen.
     /// </summary>
     IEnumerator DropSpotsFromAbove()
-    { 
+    {
         for (var y = 0; y < GameConfiguration.Height; y++)
-        { 
+        {
             for (var x = 0; x < GameConfiguration.Width; x++)
             {
                 var spotPresenter = BoardModel.Spots[y][x];
                 spotPresenter.FallAndBounce(.5f);
-		    }
+            }
 
-		    yield return new WaitForSeconds(.05f);
-		}
+            yield return new WaitForSeconds(.05f);
+        }
     }
 
     /// <summary>
@@ -110,9 +110,9 @@ public class BoardPresenter : MonoBehaviour
 
         // For each column,
         for (var x = 0; x < GameConfiguration.Width; x++)
-        { 
-			// Create a new column.
-			List<SpotPresenter> newColumn = new List<SpotPresenter>();
+        {
+            // Create a new column.
+            List<SpotPresenter> newColumn = new List<SpotPresenter>();
 
             // Fill the new column with the spots that aren't null.
             for (var y = 0; y < GameConfiguration.Height; y++)
@@ -125,30 +125,30 @@ public class BoardPresenter : MonoBehaviour
                 if (spot == null)
                     continue;
 
-			    newColumn.Add(spot);
-		    }
+                newColumn.Add(spot);
+            }
 
             // Update the grid with the new column.
             // At this point, some (or all) spots from the top of the column may be null.
             for (var y = 0; y < newColumn.Count; y++)
-            { 
+            {
                 BoardModel.Spots[y][x] = newColumn[y];
                 newColumn[y].SpotModel.BoardPosition = new Vector2Int(x, y);
-		    }
+            }
 
-			// Generate new spots to fill in the remainder of the column.
+            // Generate new spots to fill in the remainder of the column.
             for (var y = newColumn.Count; y < GameConfiguration.Height; y++)
             {
                 var row = BoardModel.Spots[y];
                 row[x] = SpotPrefabService.MakeSpot(x, y);
                 numNewSpots++;
-		    }
-		}
+            }
+        }
 
         if (numNewSpots > 0)
         {
             StartCoroutine(DropSpotsFromAbove());
-		}
+        }
     }
 
     /// <summary>
@@ -186,45 +186,45 @@ public class BoardPresenter : MonoBehaviour
 
         // Grab the last connected spot.
         var lastIndex = BoardModel.ConnectedSpots.Count - 1;
-	    var lastSpot = BoardModel.ConnectedSpots[lastIndex];
+        var lastSpot = BoardModel.ConnectedSpots[lastIndex];
 
-	    // If the colors don't match, early return.
-	    if (!lastSpot.SpotModel.Color.Equals(newSpot.SpotModel.Color))
-			return false;
+        // If the colors don't match, early return.
+        if (!lastSpot.SpotModel.Color.Equals(newSpot.SpotModel.Color))
+            return false;
 
-	    // If the spots are not cardinally adjacent, early return.
-	    if (!SquareMechanic.IsCardinallyAdjacent(lastSpot, newSpot))
-			return false;
+        // If the spots are not cardinally adjacent, early return.
+        if (!SquareMechanic.IsCardinallyAdjacent(lastSpot, newSpot))
+            return false;
 
         // If the spot isn't already connected, connect the spot and early return.
-	    var foundIndex = BoardModel.ConnectedSpots.FindIndex(spot => spot == newSpot);
+        var foundIndex = BoardModel.ConnectedSpots.FindIndex(spot => spot == newSpot);
         if (foundIndex == -1)
         {
             ConnectSpot(newSpot);
             return true;
-		}
+        }
 
         // If the spot is the second-to-last-connected spot,
         if (foundIndex > -1 && foundIndex == lastIndex - 1)
-        { 
+        {
             // Remove the last connected spot and early return.
-		    RemoveLastConnectedSpot();
+            RemoveLastConnectedSpot();
             return true;
-		}
+        }
 
         // If a loop was detected,
         var isLoop = foundIndex == 0 && BoardModel.ConnectedSpots.Count >= 4;
         if (isLoop)
-        { 
+        {
             // And the spot isn't already connected,
             var spots = BoardModel.ConnectedSpots;
             if (spots[spots.Count - 1] != newSpot)
-            { 
-			    // Connect the spot to close the loop.
-			    ConnectSpot(newSpot);
+            {
+                // Connect the spot to close the loop.
+                ConnectSpot(newSpot);
                 return true;
-		    }
-		}
+            }
+        }
 
         return false;
     }
@@ -253,7 +253,7 @@ public class BoardPresenter : MonoBehaviour
             // Otherwise, the hit object is a spot. Handle the spot press event.
             var spotPresenter = hitInfo.collider.GetComponent<SpotPresenter>();
             return handleSpotMove(spotPresenter);
-		}
+        }
 
         return false;
     }
@@ -266,28 +266,28 @@ public class BoardPresenter : MonoBehaviour
         // Play audio feedback.
         var audioClip = AudioService.Notes.ElementAtOrDefault(BoardModel.ConnectedSpots.Count - 1);
         if (audioClip != null)
-        { 
+        {
             AudioService.PlayOneShot(audioClip);
-		}
+        }
         else
-        { 
+        {
             // Don't have sound, ah well – no-op.
-		}
+        }
 
-	    // Play visual feedback.
-	    var pos = spotPresenter.transform.position;
+        // Play visual feedback.
+        var pos = spotPresenter.transform.position;
         var feedbackPos = new Vector3(pos.x, pos.y, -1f); // -1 is important, need to show on top!
         SpotPressFeedbackService.MakeFeedback(feedbackPos, spotPresenter.SpotModel.Color);
     }
 
     void ShowSquareDetectionFeedback()
-    { 
-	    // Play some audio feedback.
-		AudioService.PlayOneShot(AudioService.Chime);
+    {
+        // Play some audio feedback.
+        AudioService.PlayOneShot(AudioService.Chime);
 
-	    // For all the circles of the same color, play some visual feedback to indicate they will be cleared.
-	    var color = BoardModel.ConnectedSpots[0].SpotModel.Color;
-	    HighlightAllSpotsWith(color);
+        // For all the circles of the same color, play some visual feedback to indicate they will be cleared.
+        var color = BoardModel.ConnectedSpots[0].SpotModel.Color;
+        HighlightAllSpotsWith(color);
     }
 
     /// <summary>
@@ -315,12 +315,12 @@ public class BoardPresenter : MonoBehaviour
     /// </summary>
     void DisconnectSpots()
     {
-		// Grab a copy of the list of connected dots.
+        // Grab a copy of the list of connected dots.
         var connectedSpots = BoardModel.ConnectedSpots;
-		var spotsToDestroy = new List<SpotPresenter>(connectedSpots);
+        var spotsToDestroy = new List<SpotPresenter>(connectedSpots);
 
-		// Clear the connected dots from the board.
-		connectedSpots.Clear();
+        // Clear the connected dots from the board.
+        connectedSpots.Clear();
 
         if (BoardModel.IsClosedSquare)
         {
@@ -331,26 +331,26 @@ public class BoardPresenter : MonoBehaviour
 
             // Add all dots of the same color to our spotsToDestroy.
             for (var y = 0; y < GameConfiguration.Height; y++)
-            { 
+            {
                 for (var x = 0; x < GameConfiguration.Width; x++)
                 {
                     var spot = BoardModel.Spots[y][x];
                     if (spot.SpotModel.Color.Equals(squareColor))
                     {
                         spotsToDestroy.Add(spot);
-				    }
-				}
-		    }
-		}
+                    }
+                }
+            }
+        }
 
-	    // Then, because there might be dupes in spotsToDestroy, we de-dupe.
-	    spotsToDestroy = spotsToDestroy.Distinct().ToList();
+        // Then, because there might be dupes in spotsToDestroy, we de-dupe.
+        spotsToDestroy = spotsToDestroy.Distinct().ToList();
 
         // Perform a "disconnect" only if there are 2 or more connected spots.
         if (spotsToDestroy.Count >= 2)
-        { 
-			foreach (var spot in spotsToDestroy)
-			{
+        {
+            foreach (var spot in spotsToDestroy)
+            {
                 // Find the spot's position on the board.
                 var boardPos = spot.SpotModel.BoardPosition;
                 var x = boardPos.x;
@@ -358,9 +358,9 @@ public class BoardPresenter : MonoBehaviour
 
                 // Clear that spot from the grid (leaving a `null` in its place).
                 var spotPresenter = BoardModel.Spots[y][x];
-			    spotPresenter.Disappear(.2f);
-			    BoardModel.Spots[y][x] = null;
-			}
-		}
+                spotPresenter.Disappear(.2f);
+                BoardModel.Spots[y][x] = null;
+            }
+        }
     }
 }

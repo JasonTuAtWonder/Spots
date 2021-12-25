@@ -25,7 +25,7 @@ public class CallAttentionToSpotService : MonoBehaviour
             var x = Random.Range(-25f, 25f);
             var y = Random.Range(-25f, 25f);
             MakeFeedback(new Vector3(x, y, 5f), GameConfiguration.RandomColor());
-		}
+        }
 #endif
     }
 }
