@@ -8,12 +8,12 @@ Shader "Unlit/Circle That Gets More Transparent Toward Center"
     SubShader
     {
         Tags
-		{
+        {
             // Metadata that tells Unity to treat this object as a transparent object,
             // thus affecting the render order - among other things.
-			"RenderType" = "Transparent"
-			"Queue" = "Transparent"
-		}
+            "RenderType" = "Transparent"
+            "Queue" = "Transparent"
+        }
         Pass
         {
             ZWrite Off // Don't want transparent shaders to write to depth buffer (which will occlude objects behind it).
@@ -36,7 +36,7 @@ Shader "Unlit/Circle That Gets More Transparent Toward Center"
             };
 
             float4 _DesiredColor;
-			float _Transparency;
+            float _Transparency;
 
             Interpolators vert (MeshData v)
             {
